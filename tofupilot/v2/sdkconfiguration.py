@@ -41,10 +41,7 @@ class SDKConfiguration:
 
     def get_server_details(self) -> Tuple[str, Dict[str, str]]:
         if self.server_url is not None and self.server_url:
-            url = remove_suffix(self.server_url, "/")
-            if not url.endswith("/api"):
-                url += "/api"
-            return url, {}
+            return remove_suffix(self.server_url, "/"), {}
         if self.server_idx is None:
             self.server_idx = 0
 

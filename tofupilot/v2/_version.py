@@ -3,10 +3,10 @@
 import importlib.metadata
 
 __title__: str = "tofupilot.v2"
-__version__: str = "2.2.4"
+__version__: str = "2.2.2"
 __openapi_doc_version__: str = "2.0.0"
 __gen_version__: str = "2.657.1"
-__user_agent__: str = "speakeasy-sdk/python 2.2.4 2.657.1 2.0.0 tofupilot.v2"
+__user_agent__: str = "speakeasy-sdk/python 2.2.2 2.657.1 2.0.0 tofupilot.v2"
 
 try:
     if __package__ is not None:

@@ -101,49 +101,6 @@ class ProcedureListCreatedByUser(BaseModel):
         return m
 
 
-ProcedureListOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
-r"""Result of the test run."""
-
-
-class ProcedureListUnitTypedDict(TypedDict):
-    r"""Unit associated with this run."""
-
-    id: str
-    r"""Unique identifier for the unit."""
-
-
-class ProcedureListUnit(BaseModel):
-    r"""Unit associated with this run."""
-
-    id: str
-    r"""Unique identifier for the unit."""
-
-
-class RunTypedDict(TypedDict):
-    id: str
-    r"""Unique identifier for the run."""
-    outcome: ProcedureListOutcome
-    r"""Result of the test run."""
-    started_at: datetime
-    r"""ISO 8601 timestamp when the run was started."""
-    unit: ProcedureListUnitTypedDict
-    r"""Unit associated with this run."""
-
-
-class Run(BaseModel):
-    id: str
-    r"""Unique identifier for the run."""
-
-    outcome: ProcedureListOutcome
-    r"""Result of the test run."""
-
-    started_at: datetime
-    r"""ISO 8601 timestamp when the run was started."""
-
-    unit: ProcedureListUnit
-    r"""Unit associated with this run."""
-
-
 ProcedureListProvider = Literal["github", "gitlab"]
 
 
@@ -183,8 +140,6 @@ class ProcedureListDataTypedDict(TypedDict):
     r"""ISO 8601 timestamp when the procedure was created."""
     created_by_user: ProcedureListCreatedByUserTypedDict
     r"""User who created the procedure."""
-    runs: List[RunTypedDict]
-    r"""Recent runs for this procedure."""
     linked_repository: Nullable[LinkedRepositoryTypedDict]
     r"""Linked repository for this procedure."""
 
@@ -201,9 +156,6 @@ class ProcedureListData(BaseModel):
 
     created_by_user: ProcedureListCreatedByUser
     r"""User who created the procedure."""
-
-    runs: List[Run]
-    r"""Recent runs for this procedure."""
 
     linked_repository: Annotated[
         Nullable[LinkedRepository], pydantic.Field(alias="linkedRepository")

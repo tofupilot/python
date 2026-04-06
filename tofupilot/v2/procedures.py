@@ -232,7 +232,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureListResponse:
         r"""List and filter procedures
 
-        Retrieve procedures with optional filtering and search. Returns all procedure data including creator, recent runs, and FPY (First Pass Yield) statistics.
+        Retrieve procedures with optional filtering and search. Returns procedure data including creator and linked repository.
 
         :param limit: Maximum number of procedures to return per page.
         :param cursor:
@@ -343,7 +343,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureListResponse:
         r"""List and filter procedures
 
-        Retrieve procedures with optional filtering and search. Returns all procedure data including creator, recent runs, and FPY (First Pass Yield) statistics.
+        Retrieve procedures with optional filtering and search. Returns procedure data including creator and linked repository.
 
         :param limit: Maximum number of procedures to return per page.
         :param cursor:
