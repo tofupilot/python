@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables FIRST, before any other imports
-env_path = Path(__file__).parent / ".env.local"
+env_path = Path(__file__).parent.parent.parent / ".env.local"
 load_dotenv(env_path, override=True)
 
 # Disable posthog during tests, needs to come before `import tofupilot`
