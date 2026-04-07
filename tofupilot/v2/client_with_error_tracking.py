@@ -7,8 +7,12 @@ from typing import Optional, Union
 
 from pydantic_core import ValidationError
 
+import httpx as _httpx
+
 from .sdk import TofuPilot
 from .errors.tofupiloterror import TofuPilotError
+from ._hooks.types import BeforeRequestContext, BeforeRequestHook
+from ._version import __version__
 
 
 def _enhance_error_message(e: TofuPilotError) -> None:
@@ -125,6 +129,17 @@ class _AttachmentsWithUpload(_ResourceWithBetterErrors):
         return dest
 
 
+class _ClientInfoHook(BeforeRequestHook):
+    """Injects x-client-type and x-client-version headers into every request."""
+
+    def before_request(
+        self, hook_ctx: BeforeRequestContext, request: _httpx.Request
+    ):
+        request.headers["x-client-type"] = "python"
+        request.headers["x-client-version"] = __version__
+        return request
+
+
 class TofuPilotWithErrorTracking(TofuPilot):
     """
     Enhanced TofuPilot client with automatic error tracking and improved logging.
@@ -168,6 +183,9 @@ class TofuPilotWithErrorTracking(TofuPilot):
             retry_config=retry_config,
             **kwargs
         )
+
+        # Register client info hook for API activity tracking
+        self.sdk_configuration.hooks.register_before_request_hook(_ClientInfoHook())
 
     def __getattr__(self, name: str):
         attr = super().__getattr__(name)
