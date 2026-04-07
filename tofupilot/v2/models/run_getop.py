@@ -1243,7 +1243,7 @@ class RunGetLogTypedDict(TypedDict):
     timestamp: datetime
     message: str
     source_file: str
-    line_number: float
+    line_number: int
 
 
 class RunGetLog(BaseModel):
@@ -1257,7 +1257,7 @@ class RunGetLog(BaseModel):
 
     source_file: str
 
-    line_number: float
+    line_number: int
 
 
 class SubUnitTypedDict(TypedDict):

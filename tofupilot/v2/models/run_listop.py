@@ -55,7 +55,7 @@ class RunListRequestTypedDict(TypedDict):
     operated_by_ids: NotRequired[List[str]]
     limit: NotRequired[int]
     r"""Maximum number of runs to return per page."""
-    cursor: NotRequired[float]
+    cursor: NotRequired[int]
     sort_by: NotRequired[RunListSortBy]
     r"""Field to sort results by."""
     sort_order: NotRequired[RunListSortOrder]
@@ -170,7 +170,7 @@ class RunListRequest(BaseModel):
     r"""Maximum number of runs to return per page."""
 
     cursor: Annotated[
-        Optional[float],
+        Optional[int],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 

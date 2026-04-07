@@ -1163,7 +1163,7 @@ class RunCreateLogTypedDict(TypedDict):
     r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated."""
     source_file: str
     r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry."""
-    line_number: float
+    line_number: int
     r"""Line number in the source file where the log message was generated. Used for debugging and tracing log origins."""
 
 
@@ -1180,7 +1180,7 @@ class RunCreateLog(BaseModel):
     source_file: str
     r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry."""
 
-    line_number: float
+    line_number: int
     r"""Line number in the source file where the log message was generated. Used for debugging and tracing log origins."""
 
 
