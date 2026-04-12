@@ -62,8 +62,134 @@ class _ResourceWithBetterErrors:
         return wrapper
 
 
+def _upload_to_presigned_url(upload_url: str, file: Path) -> None:
+    """Upload file bytes to a pre-signed URL."""
+    import httpx
+
+    content_type = mimetypes.guess_type(str(file))[0] or "application/octet-stream"
+    with open(file, "rb") as f:
+        resp = httpx.put(upload_url, content=f.read(), headers={"Content-Type": content_type})
+    if resp.status_code != 200:
+        raise RuntimeError(f"File upload failed with status {resp.status_code}")
+
+
+def _download_from_url(url: str, dest: Path) -> Path:
+    """Download a file from a URL to a local path."""
+    import httpx
+
+    resp = httpx.get(url)
+    if resp.status_code != 200:
+        raise RuntimeError(f"Download failed with status {resp.status_code}")
+    dest.write_bytes(resp.content)
+    return dest
+
+
+class _RunAttachments:
+    """Sub-resource: client.runs.attachments.upload() / .download()"""
+
+    def __init__(self, resource):
+        self._resource = resource
+
+    def upload(self, id: str, file: Union[str, Path]) -> str:
+        """Upload a file and attach it to a run.
+
+        Args:
+            id: Run ID.
+            file: Path to the file to upload.
+
+        Returns:
+            The attachment ID.
+        """
+        file = Path(file)
+        if not file.exists():
+            raise FileNotFoundError(f"File not found: {file}")
+
+        result = self._resource.create_attachment(id=id, name=file.name)
+        _upload_to_presigned_url(result.upload_url, file)
+        return result.id
+
+    def download(self, attachment, dest: Union[str, Path, None] = None) -> Path:
+        """Download an attachment to a local file.
+
+        Args:
+            attachment: An attachment object with download_url and name.
+            dest: Destination path. Defaults to the attachment name in the current directory.
+
+        Returns:
+            The path to the downloaded file.
+        """
+        url = attachment.download_url
+        if not url:
+            raise ValueError(f"Attachment '{attachment.name}' has no download URL")
+
+        dest = Path(dest) if dest else Path(attachment.name)
+        return _download_from_url(url, dest)
+
+
+class _UnitAttachments:
+    """Sub-resource: client.units.attachments.upload() / .download() / .delete()"""
+
+    def __init__(self, resource):
+        self._resource = resource
+
+    def upload(self, serial_number: str, file: Union[str, Path]) -> str:
+        """Upload a file and attach it to a unit.
+
+        Args:
+            serial_number: Unit serial number.
+            file: Path to the file to upload.
+
+        Returns:
+            The attachment ID.
+        """
+        file = Path(file)
+        if not file.exists():
+            raise FileNotFoundError(f"File not found: {file}")
+
+        result = self._resource.create_attachment(serial_number=serial_number, name=file.name)
+        _upload_to_presigned_url(result.upload_url, file)
+        return result.id
+
+    def download(self, attachment, dest: Union[str, Path, None] = None) -> Path:
+        """Download an attachment to a local file.
+
+        Args:
+            attachment: An attachment object with download_url and name.
+            dest: Destination path. Defaults to the attachment name in the current directory.
+
+        Returns:
+            The path to the downloaded file.
+        """
+        url = attachment.download_url
+        if not url:
+            raise ValueError(f"Attachment '{attachment.name}' has no download URL")
+
+        dest = Path(dest) if dest else Path(attachment.name)
+        return _download_from_url(url, dest)
+
+    def delete(self, serial_number: str, ids: list) -> object:
+        """Delete attachments from a unit.
+
+        Args:
+            serial_number: Unit serial number.
+            ids: List of attachment IDs to delete.
+
+        Returns:
+            Response with deleted IDs.
+        """
+        try:
+            return self._resource.delete_attachment(serial_number=serial_number, ids=ids)
+        except TofuPilotError as e:
+            _enhance_error_message(e)
+            raise
+
+
 class _RunsWithBetterErrors(_ResourceWithBetterErrors):
-    """Extends resource wrapper with ValidationError handling for runs.create."""
+    """Extends resource wrapper with ValidationError handling and attachments sub-resource."""
+
+    def __init__(self, resource):
+        super().__init__(resource)
+        self.attachments = _RunAttachments(resource)
 
     def create(self, **kwargs):
         try:
@@ -75,58 +201,12 @@ class _RunsWithBetterErrors(_ResourceWithBetterErrors):
             raise TofuPilotValidationError(_format_validation_error(e)) from None
 
 
-class _AttachmentsWithUpload(_ResourceWithBetterErrors):
-    """Extends attachments resource with convenience upload and download methods."""
+class _UnitsWithAttachments(_ResourceWithBetterErrors):
+    """Extends units resource with attachments sub-resource."""
 
-    def upload(self, file: Union[str, Path]) -> str:
-        """Upload a file and return its attachment ID.
-
-        Handles the full upload workflow: initialize → upload to storage → finalize.
-
-        Args:
-            file: Path to the file to upload.
-
-        Returns:
-            The attachment ID (use with units.update or runs.update).
-        """
-        import httpx
-
-        file = Path(file)
-        if not file.exists():
-            raise FileNotFoundError(f"File not found: {file}")
-
-        content_type = mimetypes.guess_type(str(file))[0] or "application/octet-stream"
-
-        init = self._resource.initialize(name=file.name)
-        with open(file, "rb") as f:
-            resp = httpx.put(init.upload_url, content=f.read(), headers={"Content-Type": content_type})
-        if resp.status_code != 200:
-            raise RuntimeError(f"File upload failed with status {resp.status_code}")
-        self._resource.finalize(id=init.id)
-        return init.id
-
-    def download(self, attachment, dest: Union[str, Path, None] = None) -> Path:
-        """Download an attachment to a local file.
-
-        Args:
-            attachment: An attachment object from unit.attachments or run.attachments.
-            dest: Destination path. Defaults to the attachment name in the current directory.
-
-        Returns:
-            The path to the downloaded file.
-        """
-        import httpx
-
-        url = attachment.download_url
-        if not url:
-            raise ValueError(f"Attachment '{attachment.name}' has no download URL")
-
-        dest = Path(dest) if dest else Path(attachment.name)
-        resp = httpx.get(url)
-        if resp.status_code != 200:
-            raise RuntimeError(f"Download failed with status {resp.status_code}")
-        dest.write_bytes(resp.content)
-        return dest
+    def __init__(self, resource):
+        super().__init__(resource)
+        self.attachments = _UnitAttachments(resource)
 
 
 class _ClientInfoHook(BeforeRequestHook):
@@ -185,14 +265,14 @@ class TofuPilotWithErrorTracking(TofuPilot):
         )
 
         # Register client info hook for API activity tracking
-        self.sdk_configuration.hooks.register_before_request_hook(_ClientInfoHook())
+        self.sdk_configuration._hooks.register_before_request_hook(_ClientInfoHook())
 
     def __getattr__(self, name: str):
         attr = super().__getattr__(name)
         if name == 'runs':
             attr = _RunsWithBetterErrors(attr)
-        elif name == 'attachments':
-            attr = _AttachmentsWithUpload(attr)
+        elif name == 'units':
+            attr = _UnitsWithAttachments(attr)
         else:
             attr = _ResourceWithBetterErrors(attr)
         setattr(self, name, attr)

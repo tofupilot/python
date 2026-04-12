@@ -4,12 +4,6 @@ from typing import TYPE_CHECKING
 from importlib import import_module
 
 if TYPE_CHECKING:
-    from .attachment_deleteop import (
-        AttachmentDeleteRequest,
-        AttachmentDeleteRequestTypedDict,
-        AttachmentDeleteResponse,
-        AttachmentDeleteResponseTypedDict,
-    )
     from .attachment_finalizeop import (
         AttachmentFinalizeRequest,
         AttachmentFinalizeRequestTypedDict,
@@ -248,6 +242,14 @@ if TYPE_CHECKING:
         ProcedureUpdateRequestTypedDict,
         ProcedureUpdateResponse,
         ProcedureUpdateResponseTypedDict,
+    )
+    from .run_createattachmentop import (
+        RunCreateAttachmentRequest,
+        RunCreateAttachmentRequestBody,
+        RunCreateAttachmentRequestBodyTypedDict,
+        RunCreateAttachmentRequestTypedDict,
+        RunCreateAttachmentResponse,
+        RunCreateAttachmentResponseTypedDict,
     )
     from .run_createop import (
         RunCreateAggregation,
@@ -515,11 +517,25 @@ if TYPE_CHECKING:
         UnitAddChildResponse,
         UnitAddChildResponseTypedDict,
     )
+    from .unit_createattachmentop import (
+        UnitCreateAttachmentRequest,
+        UnitCreateAttachmentRequestBody,
+        UnitCreateAttachmentRequestBodyTypedDict,
+        UnitCreateAttachmentRequestTypedDict,
+        UnitCreateAttachmentResponse,
+        UnitCreateAttachmentResponseTypedDict,
+    )
     from .unit_createop import (
         UnitCreateRequest,
         UnitCreateRequestTypedDict,
         UnitCreateResponse,
         UnitCreateResponseTypedDict,
+    )
+    from .unit_deleteattachmentop import (
+        UnitDeleteAttachmentRequest,
+        UnitDeleteAttachmentRequestTypedDict,
+        UnitDeleteAttachmentResponse,
+        UnitDeleteAttachmentResponseTypedDict,
     )
     from .unit_deleteop import (
         UnitDeleteRequest,
@@ -616,10 +632,6 @@ if TYPE_CHECKING:
     )
 
 __all__ = [
-    "AttachmentDeleteRequest",
-    "AttachmentDeleteRequestTypedDict",
-    "AttachmentDeleteResponse",
-    "AttachmentDeleteResponseTypedDict",
     "AttachmentFinalizeRequest",
     "AttachmentFinalizeRequestTypedDict",
     "AttachmentFinalizeResponse",
@@ -846,6 +858,12 @@ __all__ = [
     "RunCreateAggregationValidator",
     "RunCreateAggregationValidatorOutcome",
     "RunCreateAggregationValidatorTypedDict",
+    "RunCreateAttachmentRequest",
+    "RunCreateAttachmentRequestBody",
+    "RunCreateAttachmentRequestBodyTypedDict",
+    "RunCreateAttachmentRequestTypedDict",
+    "RunCreateAttachmentResponse",
+    "RunCreateAttachmentResponseTypedDict",
     "RunCreateExpectedValue",
     "RunCreateExpectedValueTypedDict",
     "RunCreateLevel",
@@ -1032,10 +1050,20 @@ __all__ = [
     "UnitAddChildRequestTypedDict",
     "UnitAddChildResponse",
     "UnitAddChildResponseTypedDict",
+    "UnitCreateAttachmentRequest",
+    "UnitCreateAttachmentRequestBody",
+    "UnitCreateAttachmentRequestBodyTypedDict",
+    "UnitCreateAttachmentRequestTypedDict",
+    "UnitCreateAttachmentResponse",
+    "UnitCreateAttachmentResponseTypedDict",
     "UnitCreateRequest",
     "UnitCreateRequestTypedDict",
     "UnitCreateResponse",
     "UnitCreateResponseTypedDict",
+    "UnitDeleteAttachmentRequest",
+    "UnitDeleteAttachmentRequestTypedDict",
+    "UnitDeleteAttachmentResponse",
+    "UnitDeleteAttachmentResponseTypedDict",
     "UnitDeleteRequest",
     "UnitDeleteRequestTypedDict",
     "UnitDeleteResponse",
@@ -1141,10 +1169,6 @@ __all__ = [
 ]
 
 _dynamic_imports: dict[str, str] = {
-    "AttachmentDeleteRequest": ".attachment_deleteop",
-    "AttachmentDeleteRequestTypedDict": ".attachment_deleteop",
-    "AttachmentDeleteResponse": ".attachment_deleteop",
-    "AttachmentDeleteResponseTypedDict": ".attachment_deleteop",
     "AttachmentFinalizeRequest": ".attachment_finalizeop",
     "AttachmentFinalizeRequestTypedDict": ".attachment_finalizeop",
     "AttachmentFinalizeResponse": ".attachment_finalizeop",
@@ -1335,6 +1359,12 @@ _dynamic_imports: dict[str, str] = {
     "ProcedureUpdateRequestTypedDict": ".procedure_updateop",
     "ProcedureUpdateResponse": ".procedure_updateop",
     "ProcedureUpdateResponseTypedDict": ".procedure_updateop",
+    "RunCreateAttachmentRequest": ".run_createattachmentop",
+    "RunCreateAttachmentRequestBody": ".run_createattachmentop",
+    "RunCreateAttachmentRequestBodyTypedDict": ".run_createattachmentop",
+    "RunCreateAttachmentRequestTypedDict": ".run_createattachmentop",
+    "RunCreateAttachmentResponse": ".run_createattachmentop",
+    "RunCreateAttachmentResponseTypedDict": ".run_createattachmentop",
     "RunCreateAggregation": ".run_createop",
     "RunCreateAggregationExpectedValue": ".run_createop",
     "RunCreateAggregationExpectedValueTypedDict": ".run_createop",
@@ -1578,10 +1608,20 @@ _dynamic_imports: dict[str, str] = {
     "UnitAddChildRequestTypedDict": ".unit_addchildop",
     "UnitAddChildResponse": ".unit_addchildop",
     "UnitAddChildResponseTypedDict": ".unit_addchildop",
+    "UnitCreateAttachmentRequest": ".unit_createattachmentop",
+    "UnitCreateAttachmentRequestBody": ".unit_createattachmentop",
+    "UnitCreateAttachmentRequestBodyTypedDict": ".unit_createattachmentop",
+    "UnitCreateAttachmentRequestTypedDict": ".unit_createattachmentop",
+    "UnitCreateAttachmentResponse": ".unit_createattachmentop",
+    "UnitCreateAttachmentResponseTypedDict": ".unit_createattachmentop",
     "UnitCreateRequest": ".unit_createop",
     "UnitCreateRequestTypedDict": ".unit_createop",
     "UnitCreateResponse": ".unit_createop",
     "UnitCreateResponseTypedDict": ".unit_createop",
+    "UnitDeleteAttachmentRequest": ".unit_deleteattachmentop",
+    "UnitDeleteAttachmentRequestTypedDict": ".unit_deleteattachmentop",
+    "UnitDeleteAttachmentResponse": ".unit_deleteattachmentop",
+    "UnitDeleteAttachmentResponseTypedDict": ".unit_deleteattachmentop",
     "UnitDeleteRequest": ".unit_deleteop",
     "UnitDeleteRequestTypedDict": ".unit_deleteop",
     "UnitDeleteResponse": ".unit_deleteop",

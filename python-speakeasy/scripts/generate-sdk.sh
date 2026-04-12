@@ -115,6 +115,22 @@ def remove_problematic_examples(obj):
 remove_problematic_examples(spec)
 print("  Removed problematic examples")
 
+# Fix 4: Add x-speakeasy-name-override for attachment endpoints to avoid name collisions
+for path_key, methods in spec.get('paths', {}).items():
+    for method_key, op in methods.items():
+        if not isinstance(op, dict):
+            continue
+        op_id = op.get('operationId', '')
+        if op_id == 'run-createAttachment':
+            op['x-speakeasy-name-override'] = 'create_attachment'
+            print("  Added name override for run-createAttachment")
+        elif op_id == 'unit-createAttachment':
+            op['x-speakeasy-name-override'] = 'create_attachment'
+            print("  Added name override for unit-createAttachment")
+        elif op_id == 'unit-deleteAttachment':
+            op['x-speakeasy-name-override'] = 'delete_attachment'
+            print("  Added name override for unit-deleteAttachment")
+
 print("  Security scheme kept as http/bearer")
 
 with open('.tmp/openapi-fixed.json', 'w') as f:

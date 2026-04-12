@@ -1,55 +1,61 @@
 """Test attaching files to units via the v2 API.
 
-This test demonstrates the full attachment workflow:
-1. Initialize an upload to get a pre-signed URL
-2. Upload file content to storage
-3. Finalize the upload
-4. Link the attachment to a unit
-5. Verify the attachment appears on the unit
+Tests the sub-resource workflow:
+1. client.units.attachments.upload(serial_number, file) - attach
+2. client.units.attachments.delete(serial_number, ids) - delete
 """
 
-import requests as http_requests
+import os
+import tempfile
+
 from tofupilot.v2 import TofuPilot
-from ..utils import assert_update_unit_success, assert_get_unit_success
+from ..utils import assert_get_unit_success
 
 
 class TestUnitAttachments:
-    """Test the full unit attachment workflow."""
+    """Test the unit attachment workflow."""
 
     def test_attach_file_to_unit(self, client: TofuPilot, auth_type: str, create_test_unit, timestamp) -> None:
-        """Attach a file to a unit and verify it appears on the unit."""
+        """Attach a file to a unit using the sub-resource helper."""
         _, serial, _ = create_test_unit("ATTACH")
 
-        # Step 1: Initialize upload
-        init = client.attachments.initialize(name="test_report.txt")
-        assert init.id
-        assert init.upload_url
+        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
+            f.write(b"unit attachment test content")
+            f.flush()
+            path = f.name
 
-        # Step 2: Upload file content to the pre-signed URL
-        file_content = b"Hello from TofuPilot unit attachment test!"
-        put_resp = http_requests.put(
-            init.upload_url,
-            data=file_content,
-            headers={"Content-Type": "text/plain"},
-        )
-        assert put_resp.status_code == 200, f"Upload failed: {put_resp.status_code}"
+        try:
+            attachment_id = client.units.attachments.upload(serial_number=serial, file=path)
+            assert attachment_id
+            assert len(attachment_id) == 36
 
-        # Step 3: Finalize the upload
-        result = client.attachments.finalize(id=init.id)
-        assert result.url
+            unit = client.units.get(serial_number=serial)
+            assert_get_unit_success(unit)
+            assert unit.attachments is not None
+            assert len(unit.attachments) >= 1
+            attached = next((a for a in unit.attachments if a.id == attachment_id), None)
+            assert attached is not None
+        finally:
+            os.unlink(path)
 
-        # Step 4: Link attachment to the unit
-        update = client.units.update(
-            serial_number=serial,
-            attachments=[init.id],
-        )
-        assert_update_unit_success(update)
+    def test_delete_attachment_from_unit(self, client: TofuPilot, auth_type: str, create_test_unit, timestamp) -> None:
+        """Attach a file, then delete it via attachments.delete()."""
+        _, serial, _ = create_test_unit("DELATT")
 
-        # Step 5: Verify attachment appears on the unit
-        unit = client.units.get(serial_number=serial)
-        assert_get_unit_success(unit)
-        assert unit.attachments is not None
-        assert len(unit.attachments) >= 1
-        attached = next((a for a in unit.attachments if a.id == init.id), None)
-        assert attached is not None
-        assert attached.name == "test_report.txt"
+        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
+            f.write(b"file to delete")
+            f.flush()
+            path = f.name
+
+        try:
+            attachment_id = client.units.attachments.upload(serial_number=serial, file=path)
+            assert attachment_id
+
+            result = client.units.attachments.delete(serial_number=serial, ids=[attachment_id])
+            assert attachment_id in result.ids
+
+            unit = client.units.get(serial_number=serial)
+            remaining = [a for a in (unit.attachments or []) if a.id == attachment_id]
+            assert len(remaining) == 0
+        finally:
+            os.unlink(path)

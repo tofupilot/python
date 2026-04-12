@@ -1,9 +1,10 @@
 [project]
 name = "tofupilot-v2"
 version = "0.7.3"
-description = "TofuPilot v2 Python SDK client"
+description = "TofuPilot v2 Speakeasy-generated SDK client"
 authors = [
     { name = "TofuPilot Team", email = "hello@tofupilot.com" },
+    { name = "Speakeasy" }
 ]
 readme = "../../README.md"
 license = { text = "MIT" }

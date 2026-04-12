@@ -53,14 +53,15 @@ client = TofuPilot(api_key="your-api-key", server_url="https://your-instance.com
 | Resource | Operations |
 |----------|-----------|
 | `client.runs` | list, create, get, delete, update |
+| `client.runs.attachments` | upload, download |
 | `client.units` | list, create, get, delete, update, add_child, remove_child |
+| `client.units.attachments` | upload, download, delete |
 | `client.parts` | list, create, get, delete, update |
 | `client.parts.revisions` | create, get, delete, update |
 | `client.procedures` | list, create, get, delete, update |
 | `client.procedures.versions` | create, get, delete |
 | `client.batches` | list, create, get, delete, update |
 | `client.stations` | list, create, get, get_current, remove, update |
-| `client.attachments` | initialize, finalize, delete, upload, download |
 | `client.user` | list |
 
 ## Usage Examples
@@ -124,17 +125,21 @@ client.units.create(serial_number="CHILD-001", part_number="PCB-V1", revision_nu
 client.units.add_child(serial_number="PARENT-001", child_serial_number="CHILD-001")
 ```
 
-### Upload and download attachments
+### Attach files to runs and units
 
 ```python
-# Upload a file (one line)
-attachment_id = client.attachments.upload("report.pdf")
+# Upload a file to a run
+client.runs.attachments.upload(id=run_id, file="report.pdf")
 
-# Link to a run
-client.runs.update(id=run_id, attachments=[attachment_id])
+# Upload a file to a unit
+client.units.attachments.upload(serial_number="SN-0001", file="calibration.pdf")
 
 # Download an attachment
-client.attachments.download(attachment, dest="local-copy.pdf")
+run = client.runs.get(id=run_id)
+client.runs.attachments.download(run.attachments[0], dest="local-copy.pdf")
+
+# Delete a unit attachment
+client.units.attachments.delete(serial_number="SN-0001", ids=[attachment_id])
 ```
 
 ## Error Handling
