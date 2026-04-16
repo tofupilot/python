@@ -289,6 +289,8 @@ class XAxisTypedDict(TypedDict):
     r"""Array of numeric data points for this axis."""
     units: NotRequired[Nullable[str]]
     r"""Unit for this axis."""
+    name: NotRequired[Nullable[str]]
+    r"""Name of this data series."""
     description: NotRequired[Nullable[str]]
     r"""Description of this data series."""
     validators: NotRequired[Nullable[List[XAxisValidatorTypedDict]]]
@@ -306,6 +308,9 @@ class XAxis(BaseModel):
     units: OptionalNullable[str] = UNSET
     r"""Unit for this axis."""
 
+    name: OptionalNullable[str] = UNSET
+    r"""Name of this data series."""
+
     description: OptionalNullable[str] = UNSET
     r"""Description of this data series."""
 
@@ -317,8 +322,8 @@ class XAxis(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["units", "description", "validators", "aggregations"]
-        nullable_fields = ["units", "description", "validators", "aggregations"]
+        optional_fields = ["units", "name", "description", "validators", "aggregations"]
+        nullable_fields = ["units", "name", "description", "validators", "aggregations"]
         null_default_fields = []
 
         serialized = handler(self)
@@ -611,6 +616,8 @@ class YAxiTypedDict(TypedDict):
     r"""Array of numeric data points for this axis."""
     units: NotRequired[Nullable[str]]
     r"""Unit for this axis."""
+    name: NotRequired[Nullable[str]]
+    r"""Name of this data series."""
     description: NotRequired[Nullable[str]]
     r"""Description of this data series."""
     validators: NotRequired[Nullable[List[YAxiValidatorTypedDict]]]
@@ -628,6 +635,9 @@ class YAxi(BaseModel):
     units: OptionalNullable[str] = UNSET
     r"""Unit for this axis."""
 
+    name: OptionalNullable[str] = UNSET
+    r"""Name of this data series."""
+
     description: OptionalNullable[str] = UNSET
     r"""Description of this data series."""
 
@@ -639,8 +649,8 @@ class YAxi(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["units", "description", "validators", "aggregations"]
-        nullable_fields = ["units", "description", "validators", "aggregations"]
+        optional_fields = ["units", "name", "description", "validators", "aggregations"]
+        nullable_fields = ["units", "name", "description", "validators", "aggregations"]
         null_default_fields = []
 
         serialized = handler(self)

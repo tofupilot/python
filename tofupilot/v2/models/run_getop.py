@@ -970,6 +970,8 @@ class DataSeryAggregation(BaseModel):
 class DataSeryTypedDict(TypedDict):
     data: List[float]
     units: Nullable[str]
+    name: NotRequired[Nullable[str]]
+    description: NotRequired[Nullable[str]]
     validators: NotRequired[Nullable[List[DataSeryValidatorTypedDict]]]
     aggregations: NotRequired[Nullable[List[DataSeryAggregationTypedDict]]]
 
@@ -979,14 +981,18 @@ class DataSery(BaseModel):
 
     units: Nullable[str]
 
+    name: OptionalNullable[str] = UNSET
+
+    description: OptionalNullable[str] = UNSET
+
     validators: OptionalNullable[List[DataSeryValidator]] = UNSET
 
     aggregations: OptionalNullable[List[DataSeryAggregation]] = UNSET
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["validators", "aggregations"]
-        nullable_fields = ["units", "validators", "aggregations"]
+        optional_fields = ["name", "description", "validators", "aggregations"]
+        nullable_fields = ["units", "name", "description", "validators", "aggregations"]
         null_default_fields = []
 
         serialized = handler(self)
@@ -1021,10 +1027,10 @@ class RunGetMeasurementTypedDict(TypedDict):
     r"""Measurement name."""
     outcome: RunGetMeasurementOutcome
     r"""Measurement validation result."""
-    units: Nullable[str]
-    r"""Units of measurement."""
     validators: Nullable[List[RunGetValidatorTypedDict]]
     r"""Structured validation rules with outcome and expected values."""
+    units: NotRequired[Nullable[str]]
+    r"""Units of measurement. Not present for multi-dimensional measurements (units are per data series)."""
     aggregations: NotRequired[Nullable[List[RunGetAggregationTypedDict]]]
     r"""Aggregations computed over this measurement."""
     measured_value: NotRequired[RunGetMeasuredValueTypedDict]
@@ -1043,11 +1049,11 @@ class RunGetMeasurement(BaseModel):
     outcome: RunGetMeasurementOutcome
     r"""Measurement validation result."""
 
-    units: Nullable[str]
-    r"""Units of measurement."""
-
     validators: Nullable[List[RunGetValidator]]
     r"""Structured validation rules with outcome and expected values."""
+
+    units: OptionalNullable[str] = UNSET
+    r"""Units of measurement. Not present for multi-dimensional measurements (units are per data series)."""
 
     aggregations: OptionalNullable[List[RunGetAggregation]] = UNSET
     r"""Aggregations computed over this measurement."""
@@ -1060,7 +1066,7 @@ class RunGetMeasurement(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["aggregations", "measured_value", "data_series"]
+        optional_fields = ["units", "aggregations", "measured_value", "data_series"]
         nullable_fields = ["units", "validators", "aggregations"]
         null_default_fields = []
 

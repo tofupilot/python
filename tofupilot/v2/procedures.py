@@ -841,7 +841,8 @@ class Procedures(BaseSDK):
         self,
         *,
         id: str,
-        name: str,
+        name: Optional[str] = None,
+        auto_deploy_branch: OptionalNullable[str] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -853,6 +854,7 @@ class Procedures(BaseSDK):
 
         :param id: Unique identifier of the procedure to update.
         :param name: New name for the procedure.
+        :param auto_deploy_branch: Branch name that triggers auto-deploy to all linked stations. Set to null to disable.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -872,6 +874,7 @@ class Procedures(BaseSDK):
             id=id,
             request_body=models.ProcedureUpdateRequestBody(
                 name=name,
+                auto_deploy_branch=auto_deploy_branch,
             ),
         )
 
@@ -955,7 +958,8 @@ class Procedures(BaseSDK):
         self,
         *,
         id: str,
-        name: str,
+        name: Optional[str] = None,
+        auto_deploy_branch: OptionalNullable[str] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -967,6 +971,7 @@ class Procedures(BaseSDK):
 
         :param id: Unique identifier of the procedure to update.
         :param name: New name for the procedure.
+        :param auto_deploy_branch: Branch name that triggers auto-deploy to all linked stations. Set to null to disable.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -986,6 +991,7 @@ class Procedures(BaseSDK):
             id=id,
             request_body=models.ProcedureUpdateRequestBody(
                 name=name,
+                auto_deploy_branch=auto_deploy_branch,
             ),
         )
 

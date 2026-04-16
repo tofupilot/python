@@ -245,10 +245,6 @@ class StationGetProcedure(BaseModel):
         return m
 
 
-StationGetConnectionStatus = Literal["connected", "disconnected"]
-r"""Current connection status of the station"""
-
-
 class StationGetTeamTypedDict(TypedDict):
     r"""Team this station is assigned to"""
 
@@ -277,8 +273,6 @@ class StationGetResponseTypedDict(TypedDict):
     r"""Procedures linked to this station with recent run counts"""
     organization_slug: str
     r"""Slug of the organization this station belongs to"""
-    connection_status: Nullable[StationGetConnectionStatus]
-    r"""Current connection status of the station"""
     team: Nullable[StationGetTeamTypedDict]
     r"""Team this station is assigned to"""
 
@@ -301,16 +295,13 @@ class StationGetResponse(BaseModel):
     organization_slug: str
     r"""Slug of the organization this station belongs to"""
 
-    connection_status: Nullable[StationGetConnectionStatus]
-    r"""Current connection status of the station"""
-
     team: Nullable[StationGetTeam]
     r"""Team this station is assigned to"""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["api_key", "connection_status", "team"]
+        nullable_fields = ["api_key", "team"]
         null_default_fields = []
 
         serialized = handler(self)
