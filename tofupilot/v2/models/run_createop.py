@@ -1205,6 +1205,8 @@ class RunCreateRequestTypedDict(TypedDict):
     r"""ISO 8601 timestamp when the test run finished execution."""
     serial_number: str
     r"""Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created."""
+    deployment_id: NotRequired[Nullable[str]]
+    r"""Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs."""
     procedure_version: NotRequired[Nullable[str]]
     r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
     operated_by: NotRequired[str]
@@ -1241,6 +1243,9 @@ class RunCreateRequest(BaseModel):
     serial_number: str
     r"""Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created."""
 
+    deployment_id: OptionalNullable[str] = UNSET
+    r"""Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs."""
+
     procedure_version: OptionalNullable[str] = UNSET
     r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
 
@@ -1271,6 +1276,7 @@ class RunCreateRequest(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
+            "deployment_id",
             "procedure_version",
             "operated_by",
             "part_number",
@@ -1281,7 +1287,7 @@ class RunCreateRequest(BaseModel):
             "phases",
             "logs",
         ]
-        nullable_fields = ["procedure_version"]
+        nullable_fields = ["deployment_id", "procedure_version"]
         null_default_fields = []
 
         serialized = handler(self)

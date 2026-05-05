@@ -9,7 +9,7 @@ from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
 from tofupilot.v2.versions import Versions
-from typing import Any, Mapping, Optional
+from typing import Any, List, Mapping, Optional
 
 
 class Procedures(BaseSDK):
@@ -842,7 +842,10 @@ class Procedures(BaseSDK):
         *,
         id: str,
         name: Optional[str] = None,
-        auto_deploy_branch: OptionalNullable[str] = UNSET,
+        production_branch: OptionalNullable[str] = UNSET,
+        auto_push_enabled: Optional[bool] = None,
+        excluded_branch_patterns: Optional[List[str]] = None,
+        root_directory: OptionalNullable[str] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -854,7 +857,10 @@ class Procedures(BaseSDK):
 
         :param id: Unique identifier of the procedure to update.
         :param name: New name for the procedure.
-        :param auto_deploy_branch: Branch name that triggers auto-deploy to all linked stations. Set to null to disable.
+        :param production_branch: Branch treated as production. Pushes to this branch deploy as production; every other branch deploys as preview. Null = no branch promoted to production.
+        :param auto_push_enabled: Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out.
+        :param excluded_branch_patterns: Branches matching any of these patterns (exact name or minimatch glob, e.g. \"renovate/*\") skip preview deployments. Empty array = no exclusions.
+        :param root_directory: Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -874,7 +880,10 @@ class Procedures(BaseSDK):
             id=id,
             request_body=models.ProcedureUpdateRequestBody(
                 name=name,
-                auto_deploy_branch=auto_deploy_branch,
+                production_branch=production_branch,
+                auto_push_enabled=auto_push_enabled,
+                excluded_branch_patterns=excluded_branch_patterns,
+                root_directory=root_directory,
             ),
         )
 
@@ -959,7 +968,10 @@ class Procedures(BaseSDK):
         *,
         id: str,
         name: Optional[str] = None,
-        auto_deploy_branch: OptionalNullable[str] = UNSET,
+        production_branch: OptionalNullable[str] = UNSET,
+        auto_push_enabled: Optional[bool] = None,
+        excluded_branch_patterns: Optional[List[str]] = None,
+        root_directory: OptionalNullable[str] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -971,7 +983,10 @@ class Procedures(BaseSDK):
 
         :param id: Unique identifier of the procedure to update.
         :param name: New name for the procedure.
-        :param auto_deploy_branch: Branch name that triggers auto-deploy to all linked stations. Set to null to disable.
+        :param production_branch: Branch treated as production. Pushes to this branch deploy as production; every other branch deploys as preview. Null = no branch promoted to production.
+        :param auto_push_enabled: Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out.
+        :param excluded_branch_patterns: Branches matching any of these patterns (exact name or minimatch glob, e.g. \"renovate/*\") skip preview deployments. Empty array = no exclusions.
+        :param root_directory: Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -991,7 +1006,10 @@ class Procedures(BaseSDK):
             id=id,
             request_body=models.ProcedureUpdateRequestBody(
                 name=name,
-                auto_deploy_branch=auto_deploy_branch,
+                production_branch=production_branch,
+                auto_push_enabled=auto_push_enabled,
+                excluded_branch_patterns=excluded_branch_patterns,
+                root_directory=root_directory,
             ),
         )
 

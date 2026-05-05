@@ -168,8 +168,6 @@ class ProcedureGetResponseTypedDict(TypedDict):
 
     id: str
     r"""Unique identifier for the procedure."""
-    identifier: Nullable[str]
-    r"""Optional unique identifier for the procedure."""
     name: str
     r"""Procedure name."""
     created_at: datetime
@@ -189,9 +187,6 @@ class ProcedureGetResponse(BaseModel):
 
     id: str
     r"""Unique identifier for the procedure."""
-
-    identifier: Nullable[str]
-    r"""Optional unique identifier for the procedure."""
 
     name: str
     r"""Procedure name."""
@@ -214,7 +209,7 @@ class ProcedureGetResponse(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["identifier", "created_by_user"]
+        nullable_fields = ["created_by_user"]
         null_default_fields = []
 
         serialized = handler(self)

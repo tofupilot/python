@@ -969,25 +969,37 @@ class DataSeryAggregation(BaseModel):
 
 class DataSeryTypedDict(TypedDict):
     data: List[float]
+    r"""Array of numeric data points for this series."""
     units: Nullable[str]
+    r"""Unit for this data series."""
     name: NotRequired[Nullable[str]]
+    r"""Name of this data series."""
     description: NotRequired[Nullable[str]]
+    r"""Description of this data series."""
     validators: NotRequired[Nullable[List[DataSeryValidatorTypedDict]]]
+    r"""Validators for this data series."""
     aggregations: NotRequired[Nullable[List[DataSeryAggregationTypedDict]]]
+    r"""Aggregations computed over this data series."""
 
 
 class DataSery(BaseModel):
     data: List[float]
+    r"""Array of numeric data points for this series."""
 
     units: Nullable[str]
+    r"""Unit for this data series."""
 
     name: OptionalNullable[str] = UNSET
+    r"""Name of this data series."""
 
     description: OptionalNullable[str] = UNSET
+    r"""Description of this data series."""
 
     validators: OptionalNullable[List[DataSeryValidator]] = UNSET
+    r"""Validators for this data series."""
 
     aggregations: OptionalNullable[List[DataSeryAggregation]] = UNSET
+    r"""Aggregations computed over this data series."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):

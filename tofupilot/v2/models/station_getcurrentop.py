@@ -175,8 +175,6 @@ class StationGetCurrentDeployment(BaseModel):
 class StationGetCurrentProcedureTypedDict(TypedDict):
     id: str
     r"""Procedure ID"""
-    identifier: Nullable[str]
-    r"""Procedure identifier"""
     name: str
     r"""Procedure name"""
     runs_count: float
@@ -188,9 +186,6 @@ class StationGetCurrentProcedureTypedDict(TypedDict):
 class StationGetCurrentProcedure(BaseModel):
     id: str
     r"""Procedure ID"""
-
-    identifier: Nullable[str]
-    r"""Procedure identifier"""
 
     name: str
     r"""Procedure name"""
@@ -204,7 +199,7 @@ class StationGetCurrentProcedure(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = ["deployment"]
-        nullable_fields = ["identifier", "deployment"]
+        nullable_fields = ["deployment"]
         null_default_fields = []
 
         serialized = handler(self)

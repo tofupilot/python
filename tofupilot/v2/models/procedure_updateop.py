@@ -11,30 +11,57 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata, RequestMetadata
-from typing import Optional
+from typing import List, Optional
 from typing_extensions import Annotated, NotRequired, TypedDict
 
 
 class ProcedureUpdateRequestBodyTypedDict(TypedDict):
     name: NotRequired[str]
     r"""New name for the procedure."""
-    auto_deploy_branch: NotRequired[Nullable[str]]
-    r"""Branch name that triggers auto-deploy to all linked stations. Set to null to disable."""
+    production_branch: NotRequired[Nullable[str]]
+    r"""Branch treated as production. Pushes to this branch deploy as production; every other branch deploys as preview. Null = no branch promoted to production."""
+    auto_push_enabled: NotRequired[bool]
+    r"""Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out."""
+    excluded_branch_patterns: NotRequired[List[str]]
+    r"""Branches matching any of these patterns (exact name or minimatch glob, e.g. \"renovate/*\") skip preview deployments. Empty array = no exclusions."""
+    root_directory: NotRequired[Nullable[str]]
+    r"""Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root."""
 
 
 class ProcedureUpdateRequestBody(BaseModel):
     name: Optional[str] = None
     r"""New name for the procedure."""
 
-    auto_deploy_branch: Annotated[
-        OptionalNullable[str], pydantic.Field(alias="autoDeployBranch")
+    production_branch: Annotated[
+        OptionalNullable[str], pydantic.Field(alias="productionBranch")
     ] = UNSET
-    r"""Branch name that triggers auto-deploy to all linked stations. Set to null to disable."""
+    r"""Branch treated as production. Pushes to this branch deploy as production; every other branch deploys as preview. Null = no branch promoted to production."""
+
+    auto_push_enabled: Annotated[
+        Optional[bool], pydantic.Field(alias="autoPushEnabled")
+    ] = None
+    r"""Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out."""
+
+    excluded_branch_patterns: Annotated[
+        Optional[List[str]], pydantic.Field(alias="excludedBranchPatterns")
+    ] = None
+    r"""Branches matching any of these patterns (exact name or minimatch glob, e.g. \"renovate/*\") skip preview deployments. Empty array = no exclusions."""
+
+    root_directory: Annotated[
+        OptionalNullable[str], pydantic.Field(alias="rootDirectory")
+    ] = UNSET
+    r"""Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["name", "autoDeployBranch"]
-        nullable_fields = ["autoDeployBranch"]
+        optional_fields = [
+            "name",
+            "productionBranch",
+            "autoPushEnabled",
+            "excludedBranchPatterns",
+            "rootDirectory",
+        ]
+        nullable_fields = ["productionBranch", "rootDirectory"]
         null_default_fields = []
 
         serialized = handler(self)

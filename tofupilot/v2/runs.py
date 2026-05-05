@@ -19,6 +19,7 @@ class Runs(BaseSDK):
         started_at: datetime,
         ended_at: datetime,
         serial_number: str,
+        deployment_id: OptionalNullable[str] = UNSET,
         procedure_version: OptionalNullable[str] = UNSET,
         operated_by: Optional[str] = None,
         part_number: Optional[str] = None,
@@ -46,6 +47,7 @@ class Runs(BaseSDK):
         :param started_at: ISO 8601 timestamp when the test run began execution. This timestamp will be used to track when the test execution started and for historical analysis of test runs. A separate created_at timestamp is stored internally server side to track upload date.
         :param ended_at: ISO 8601 timestamp when the test run finished execution.
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
+        :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
         :param procedure_version: Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
         :param operated_by: Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test.
         :param part_number: Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist.
@@ -73,6 +75,7 @@ class Runs(BaseSDK):
         request = models.RunCreateRequest(
             outcome=outcome,
             procedure_id=procedure_id,
+            deployment_id=deployment_id,
             procedure_version=procedure_version,
             operated_by=operated_by,
             started_at=started_at,
@@ -177,6 +180,7 @@ class Runs(BaseSDK):
         started_at: datetime,
         ended_at: datetime,
         serial_number: str,
+        deployment_id: OptionalNullable[str] = UNSET,
         procedure_version: OptionalNullable[str] = UNSET,
         operated_by: Optional[str] = None,
         part_number: Optional[str] = None,
@@ -204,6 +208,7 @@ class Runs(BaseSDK):
         :param started_at: ISO 8601 timestamp when the test run began execution. This timestamp will be used to track when the test execution started and for historical analysis of test runs. A separate created_at timestamp is stored internally server side to track upload date.
         :param ended_at: ISO 8601 timestamp when the test run finished execution.
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
+        :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
         :param procedure_version: Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
         :param operated_by: Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test.
         :param part_number: Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist.
@@ -231,6 +236,7 @@ class Runs(BaseSDK):
         request = models.RunCreateRequest(
             outcome=outcome,
             procedure_id=procedure_id,
+            deployment_id=deployment_id,
             procedure_version=procedure_version,
             operated_by=operated_by,
             started_at=started_at,
