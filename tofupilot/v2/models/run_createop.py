@@ -1105,6 +1105,8 @@ class RunCreatePhaseTypedDict(TypedDict):
     r"""Array of measurements collected during this phase. Each measurement captures specific test data points with values, limits, and validation results. If no measurements are specified, the phase will be created without measurement data."""
     retry_count: NotRequired[int]
     r"""Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count."""
+    expected_to_fail: NotRequired[bool]
+    r"""True when the phase was marked as expected-to-fail by the test framework (pytest @pytest.mark.xfail). Lets dashboards distinguish an expected failure from a generic SKIP. Defaults to false; OpenHTF and YAML procedures never set this."""
 
 
 class RunCreatePhase(BaseModel):
@@ -1129,9 +1131,12 @@ class RunCreatePhase(BaseModel):
     retry_count: Optional[int] = 0
     r"""Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count."""
 
+    expected_to_fail: Optional[bool] = False
+    r"""True when the phase was marked as expected-to-fail by the test framework (pytest @pytest.mark.xfail). Lets dashboards distinguish an expected failure from a generic SKIP. Defaults to false; OpenHTF and YAML procedures never set this."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["docstring", "measurements", "retry_count"]
+        optional_fields = ["docstring", "measurements", "retry_count", "expected_to_fail"]
         nullable_fields = ["docstring", "measurements"]
         null_default_fields = []
 

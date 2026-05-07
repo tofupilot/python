@@ -1122,6 +1122,8 @@ class RunGetPhaseTypedDict(TypedDict):
     r"""ISO 8601 duration of the phase (computed from started_at and ended_at)."""
     retry_count: int
     r"""Zero-based retry attempt index. 0 = first attempt, 1 = first retry, etc."""
+    expected_to_fail: bool
+    r"""True when the phase was marked as expected-to-fail by the test framework (pytest @pytest.mark.xfail)."""
     measurements: List[RunGetMeasurementTypedDict]
     r"""Array of measurements taken during this phase."""
     docstring: NotRequired[Nullable[str]]
@@ -1149,6 +1151,9 @@ class RunGetPhase(BaseModel):
 
     retry_count: int
     r"""Zero-based retry attempt index. 0 = first attempt, 1 = first retry, etc."""
+
+    expected_to_fail: bool = False
+    r"""True when the phase was marked as expected-to-fail by the test framework (pytest @pytest.mark.xfail)."""
 
     measurements: List[RunGetMeasurement]
     r"""Array of measurements taken during this phase."""
