@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from datetime import datetime
+import pydantic
 from pydantic import model_serializer
 from tofupilot.v2.types import (
     BaseModel,
@@ -11,8 +12,8 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, QueryParamMetadata
-from typing import List, Literal, Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Dict, List, Literal, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
 UnitListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
@@ -26,6 +27,67 @@ r"""Field to sort results by. last_run_at sorts by most recent test run date. la
 
 UnitListSortOrder = Literal["asc", "desc"]
 r"""Sort order direction."""
+
+
+class UnitListMetadataQueryParam3TypedDict(TypedDict):
+    eq: bool
+
+
+class UnitListMetadataQueryParam3(BaseModel):
+    eq: Annotated[bool, FieldMetadata(query=True)]
+
+
+class UnitListMetadataQueryParam2TypedDict(TypedDict):
+    gte: NotRequired[float]
+    lte: NotRequired[float]
+    gt: NotRequired[float]
+    lt: NotRequired[float]
+    eq: NotRequired[float]
+
+
+class UnitListMetadataQueryParam2(BaseModel):
+    gte: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+    lte: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+    gt: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+    lt: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+    eq: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+
+class UnitListMetadataQueryParam1TypedDict(TypedDict):
+    in_: NotRequired[List[str]]
+    contains: NotRequired[str]
+
+
+class UnitListMetadataQueryParam1(BaseModel):
+    in_: Annotated[
+        Optional[List[str]], pydantic.Field(alias="in"), FieldMetadata(query=True)
+    ] = None
+
+    contains: Annotated[Optional[str], FieldMetadata(query=True)] = None
+
+
+UnitListQueryParamMetadataUnionTypedDict = TypeAliasType(
+    "UnitListQueryParamMetadataUnionTypedDict",
+    Union[
+        UnitListMetadataQueryParam3TypedDict,
+        UnitListMetadataQueryParam1TypedDict,
+        UnitListMetadataQueryParam2TypedDict,
+    ],
+)
+
+
+UnitListQueryParamMetadataUnion = TypeAliasType(
+    "UnitListQueryParamMetadataUnion",
+    Union[
+        UnitListMetadataQueryParam3,
+        UnitListMetadataQueryParam1,
+        UnitListMetadataQueryParam2,
+    ],
+)
 
 
 class UnitListRequestTypedDict(TypedDict):
@@ -55,6 +117,10 @@ class UnitListRequestTypedDict(TypedDict):
     r"""Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run."""
     sort_order: NotRequired[UnitListSortOrder]
     r"""Sort order direction."""
+    metadata: NotRequired[Dict[str, UnitListQueryParamMetadataUnionTypedDict]]
+    r"""Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`."""
+    include_metadata: NotRequired[bool]
+    r"""When true, includes the unit metadata array in the response. Defaults to false to keep payloads small."""
 
 
 class UnitListRequest(BaseModel):
@@ -175,6 +241,18 @@ class UnitListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = "desc"
     r"""Sort order direction."""
+
+    metadata: Annotated[
+        Optional[Dict[str, UnitListQueryParamMetadataUnion]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+    r"""Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`."""
+
+    include_metadata: Annotated[
+        Optional[bool],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = False
+    r"""When true, includes the unit metadata array in the response. Defaults to false to keep payloads small."""
 
 
 UnitListDataSample = Literal["golden", "failing"]
@@ -437,6 +515,14 @@ class LastRun(BaseModel):
         return m
 
 
+UnitListDataMetadataTypedDict = TypeAliasType(
+    "UnitListDataMetadataTypedDict", Union[str, float, bool]
+)
+
+
+UnitListDataMetadata = TypeAliasType("UnitListDataMetadata", Union[str, float, bool])
+
+
 class UnitListDataTypedDict(TypedDict):
     id: str
     r"""Unique identifier for the unit."""
@@ -460,6 +546,8 @@ class UnitListDataTypedDict(TypedDict):
     r"""Parent unit in the assembly hierarchy. Null if this is a top-level unit."""
     last_run: NotRequired[Nullable[LastRunTypedDict]]
     r"""Most recent test run performed on this unit. Null if no runs have been executed."""
+    metadata: NotRequired[Dict[str, UnitListDataMetadataTypedDict]]
+    r"""Custom metadata key/value pairs on the unit. Only present when the request sets `include_metadata=true`."""
 
 
 class UnitListData(BaseModel):
@@ -496,6 +584,9 @@ class UnitListData(BaseModel):
     last_run: OptionalNullable[LastRun] = UNSET
     r"""Most recent test run performed on this unit. Null if no runs have been executed."""
 
+    metadata: Optional[Dict[str, UnitListDataMetadata]] = None
+    r"""Custom metadata key/value pairs on the unit. Only present when the request sets `include_metadata=true`."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -504,6 +595,7 @@ class UnitListData(BaseModel):
             "batch",
             "parent",
             "last_run",
+            "metadata",
         ]
         nullable_fields = [
             "sample",

@@ -1342,6 +1342,14 @@ class SubUnit(BaseModel):
         return m
 
 
+RunGetMetadataTypedDict = TypeAliasType(
+    "RunGetMetadataTypedDict", Union[str, float, bool]
+)
+
+
+RunGetMetadata = TypeAliasType("RunGetMetadata", Union[str, float, bool])
+
+
 class RunGetResponseTypedDict(TypedDict):
     r"""Single test run details."""
 
@@ -1376,6 +1384,8 @@ class RunGetResponseTypedDict(TypedDict):
     logs: NotRequired[List[RunGetLogTypedDict]]
     sub_units: NotRequired[List[SubUnitTypedDict]]
     r"""Array of sub-units that had parent changes during this run. Only returned if `all` or `sub_units` is included."""
+    metadata: NotRequired[Dict[str, RunGetMetadataTypedDict]]
+    r"""Custom metadata key/value pairs on the run."""
 
 
 class RunGetResponse(BaseModel):
@@ -1428,6 +1438,9 @@ class RunGetResponse(BaseModel):
     sub_units: Optional[List[SubUnit]] = None
     r"""Array of sub-units that had parent changes during this run. Only returned if `all` or `sub_units` is included."""
 
+    metadata: Optional[Dict[str, RunGetMetadata]] = None
+    r"""Custom metadata key/value pairs on the run."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -1439,6 +1452,7 @@ class RunGetResponse(BaseModel):
             "attachments",
             "logs",
             "sub_units",
+            "metadata",
         ]
         nullable_fields = [
             "docstring",

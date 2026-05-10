@@ -4,10 +4,10 @@ from .basesdk import BaseSDK
 from datetime import datetime
 from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
-from tofupilot.v2.types import OptionalNullable, UNSET
+from tofupilot.v2.types import Nullable, OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 
 class UnitsSDK(BaseSDK):
@@ -18,6 +18,12 @@ class UnitsSDK(BaseSDK):
         part_number: str,
         revision_number: str,
         sample: OptionalNullable[models.UnitCreateSample] = UNSET,
+        metadata: Optional[
+            Union[
+                Dict[str, models.UnitCreateMetadata],
+                Dict[str, models.UnitCreateMetadataTypedDict],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -31,6 +37,7 @@ class UnitsSDK(BaseSDK):
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
         :param revision_number: Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
         :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+        :param metadata: Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -51,6 +58,7 @@ class UnitsSDK(BaseSDK):
             part_number=part_number,
             revision_number=revision_number,
             sample=sample,
+            metadata=metadata,
         )
 
         req = self._build_request(
@@ -130,6 +138,12 @@ class UnitsSDK(BaseSDK):
         part_number: str,
         revision_number: str,
         sample: OptionalNullable[models.UnitCreateSample] = UNSET,
+        metadata: Optional[
+            Union[
+                Dict[str, models.UnitCreateMetadata],
+                Dict[str, models.UnitCreateMetadataTypedDict],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -143,6 +157,7 @@ class UnitsSDK(BaseSDK):
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
         :param revision_number: Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
         :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+        :param metadata: Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -163,6 +178,7 @@ class UnitsSDK(BaseSDK):
             part_number=part_number,
             revision_number=revision_number,
             sample=sample,
+            metadata=metadata,
         )
 
         req = self._build_request_async(
@@ -261,6 +277,13 @@ class UnitsSDK(BaseSDK):
         cursor: Optional[int] = None,
         sort_by: Optional[models.UnitListSortBy] = "created_at",
         sort_order: Optional[models.UnitListSortOrder] = "desc",
+        metadata: Optional[
+            Union[
+                Dict[str, models.UnitListQueryParamMetadataUnion],
+                Dict[str, models.UnitListQueryParamMetadataUnionTypedDict],
+            ]
+        ] = None,
+        include_metadata: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -293,6 +316,8 @@ class UnitsSDK(BaseSDK):
         :param cursor:
         :param sort_by: Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run.
         :param sort_order: Sort order direction.
+        :param metadata: Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+        :param include_metadata: When true, includes the unit metadata array in the response. Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -332,6 +357,10 @@ class UnitsSDK(BaseSDK):
             cursor=cursor,
             sort_by=sort_by,
             sort_order=sort_order,
+            metadata=utils.get_pydantic_model(
+                metadata, Optional[Dict[str, models.UnitListQueryParamMetadataUnion]]
+            ),
+            include_metadata=include_metadata,
         )
 
         req = self._build_request(
@@ -421,6 +450,13 @@ class UnitsSDK(BaseSDK):
         cursor: Optional[int] = None,
         sort_by: Optional[models.UnitListSortBy] = "created_at",
         sort_order: Optional[models.UnitListSortOrder] = "desc",
+        metadata: Optional[
+            Union[
+                Dict[str, models.UnitListQueryParamMetadataUnion],
+                Dict[str, models.UnitListQueryParamMetadataUnionTypedDict],
+            ]
+        ] = None,
+        include_metadata: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -453,6 +489,8 @@ class UnitsSDK(BaseSDK):
         :param cursor:
         :param sort_by: Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run.
         :param sort_order: Sort order direction.
+        :param metadata: Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+        :param include_metadata: When true, includes the unit metadata array in the response. Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -492,6 +530,10 @@ class UnitsSDK(BaseSDK):
             cursor=cursor,
             sort_by=sort_by,
             sort_order=sort_order,
+            metadata=utils.get_pydantic_model(
+                metadata, Optional[Dict[str, models.UnitListQueryParamMetadataUnion]]
+            ),
+            include_metadata=include_metadata,
         )
 
         req = self._build_request_async(
@@ -963,6 +1005,13 @@ class UnitsSDK(BaseSDK):
         batch_number: OptionalNullable[str] = UNSET,
         attachments: Optional[List[str]] = None,
         sample: OptionalNullable[models.UnitUpdateSample] = UNSET,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.UnitUpdateMetadata]],
+                Dict[str, Nullable[models.UnitUpdateMetadataTypedDict]],
+            ]
+        ] = None,
+        metadata_replace: Optional[bool] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -979,6 +1028,8 @@ class UnitsSDK(BaseSDK):
         :param batch_number: New batch number for the unit. Set to null to remove batch.
         :param attachments: Array of upload IDs to attach to the unit.
         :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
+        :param metadata: Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+        :param metadata_replace: When true, removes any metadata keys not present in `metadata`. Default: false (PATCH).
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1003,6 +1054,8 @@ class UnitsSDK(BaseSDK):
                 batch_number=batch_number,
                 attachments=attachments,
                 sample=sample,
+                metadata=metadata,
+                metadata_replace=metadata_replace,
             ),
         )
 
@@ -1086,6 +1139,13 @@ class UnitsSDK(BaseSDK):
         batch_number: OptionalNullable[str] = UNSET,
         attachments: Optional[List[str]] = None,
         sample: OptionalNullable[models.UnitUpdateSample] = UNSET,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.UnitUpdateMetadata]],
+                Dict[str, Nullable[models.UnitUpdateMetadataTypedDict]],
+            ]
+        ] = None,
+        metadata_replace: Optional[bool] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -1102,6 +1162,8 @@ class UnitsSDK(BaseSDK):
         :param batch_number: New batch number for the unit. Set to null to remove batch.
         :param attachments: Array of upload IDs to attach to the unit.
         :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
+        :param metadata: Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+        :param metadata_replace: When true, removes any metadata keys not present in `metadata`. Default: false (PATCH).
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1126,6 +1188,8 @@ class UnitsSDK(BaseSDK):
                 batch_number=batch_number,
                 attachments=attachments,
                 sample=sample,
+                metadata=metadata,
+                metadata_replace=metadata_replace,
             ),
         )
 

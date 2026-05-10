@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from datetime import datetime
+import pydantic
 from pydantic import model_serializer
 from tofupilot.v2.types import (
     BaseModel,
@@ -11,8 +12,8 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, QueryParamMetadata
-from typing import List, Literal, Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Dict, List, Literal, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
 RunListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
@@ -32,6 +33,67 @@ r"""Field to sort results by."""
 
 RunListSortOrder = Literal["asc", "desc"]
 r"""Sort order direction."""
+
+
+class RunListMetadataQueryParam3TypedDict(TypedDict):
+    eq: bool
+
+
+class RunListMetadataQueryParam3(BaseModel):
+    eq: Annotated[bool, FieldMetadata(query=True)]
+
+
+class RunListMetadataQueryParam2TypedDict(TypedDict):
+    gte: NotRequired[float]
+    lte: NotRequired[float]
+    gt: NotRequired[float]
+    lt: NotRequired[float]
+    eq: NotRequired[float]
+
+
+class RunListMetadataQueryParam2(BaseModel):
+    gte: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+    lte: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+    gt: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+    lt: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+    eq: Annotated[Optional[float], FieldMetadata(query=True)] = None
+
+
+class RunListMetadataQueryParam1TypedDict(TypedDict):
+    in_: NotRequired[List[str]]
+    contains: NotRequired[str]
+
+
+class RunListMetadataQueryParam1(BaseModel):
+    in_: Annotated[
+        Optional[List[str]], pydantic.Field(alias="in"), FieldMetadata(query=True)
+    ] = None
+
+    contains: Annotated[Optional[str], FieldMetadata(query=True)] = None
+
+
+RunListQueryParamMetadataUnionTypedDict = TypeAliasType(
+    "RunListQueryParamMetadataUnionTypedDict",
+    Union[
+        RunListMetadataQueryParam3TypedDict,
+        RunListMetadataQueryParam1TypedDict,
+        RunListMetadataQueryParam2TypedDict,
+    ],
+)
+
+
+RunListQueryParamMetadataUnion = TypeAliasType(
+    "RunListQueryParamMetadataUnion",
+    Union[
+        RunListMetadataQueryParam3,
+        RunListMetadataQueryParam1,
+        RunListMetadataQueryParam2,
+    ],
+)
 
 
 class RunListRequestTypedDict(TypedDict):
@@ -63,6 +125,10 @@ class RunListRequestTypedDict(TypedDict):
     r"""Field to sort results by."""
     sort_order: NotRequired[RunListSortOrder]
     r"""Sort order direction."""
+    metadata: NotRequired[Dict[str, RunListQueryParamMetadataUnionTypedDict]]
+    r"""Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`."""
+    include_metadata: NotRequired[bool]
+    r"""When true, includes the run metadata array in the response. Defaults to false to keep payloads small."""
 
 
 class RunListRequest(BaseModel):
@@ -193,6 +259,18 @@ class RunListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = "desc"
     r"""Sort order direction."""
+
+    metadata: Annotated[
+        Optional[Dict[str, RunListQueryParamMetadataUnion]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+    r"""Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`."""
+
+    include_metadata: Annotated[
+        Optional[bool],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = False
+    r"""When true, includes the run metadata array in the response. Defaults to false to keep payloads small."""
 
 
 RunListDataOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
@@ -534,6 +612,14 @@ class RunListUnit(BaseModel):
         return m
 
 
+RunListDataMetadataTypedDict = TypeAliasType(
+    "RunListDataMetadataTypedDict", Union[str, float, bool]
+)
+
+
+RunListDataMetadata = TypeAliasType("RunListDataMetadata", Union[str, float, bool])
+
+
 class RunListDataTypedDict(TypedDict):
     id: str
     r"""Unique identifier for the run."""
@@ -559,6 +645,8 @@ class RunListDataTypedDict(TypedDict):
     r"""Station whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
     operated_by: NotRequired[Nullable[RunListOperatedByTypedDict]]
     r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    metadata: NotRequired[Dict[str, RunListDataMetadataTypedDict]]
+    r"""Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`."""
 
 
 class RunListData(BaseModel):
@@ -598,6 +686,9 @@ class RunListData(BaseModel):
     operated_by: OptionalNullable[RunListOperatedBy] = UNSET
     r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
 
+    metadata: Optional[Dict[str, RunListDataMetadata]] = None
+    r"""Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -605,6 +696,7 @@ class RunListData(BaseModel):
             "created_by_user",
             "created_by_station",
             "operated_by",
+            "metadata",
         ]
         nullable_fields = [
             "docstring",

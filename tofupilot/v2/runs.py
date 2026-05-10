@@ -4,10 +4,10 @@ from .basesdk import BaseSDK
 from datetime import datetime
 from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
-from tofupilot.v2.types import OptionalNullable, UNSET
+from tofupilot.v2.types import Nullable, OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, List, Mapping, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 
 class Runs(BaseSDK):
@@ -33,6 +33,17 @@ class Runs(BaseSDK):
         logs: Optional[
             Union[List[models.RunCreateLog], List[models.RunCreateLogTypedDict]]
         ] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, models.RunCreateMetadata],
+                Dict[str, models.RunCreateMetadataTypedDict],
+            ]
+        ] = None,
+        unit_metadata: Optional[
+            Union[
+                Dict[str, models.UnitMetadata], Dict[str, models.UnitMetadataTypedDict]
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -57,6 +68,8 @@ class Runs(BaseSDK):
         :param docstring: Additional notes or documentation about this test run.
         :param phases: Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data.
         :param logs: Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
+        :param metadata: Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+        :param unit_metadata: Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -90,6 +103,8 @@ class Runs(BaseSDK):
                 phases, Optional[List[models.RunCreatePhase]]
             ),
             logs=utils.get_pydantic_model(logs, Optional[List[models.RunCreateLog]]),
+            metadata=metadata,
+            unit_metadata=unit_metadata,
         )
 
         req = self._build_request(
@@ -194,6 +209,17 @@ class Runs(BaseSDK):
         logs: Optional[
             Union[List[models.RunCreateLog], List[models.RunCreateLogTypedDict]]
         ] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, models.RunCreateMetadata],
+                Dict[str, models.RunCreateMetadataTypedDict],
+            ]
+        ] = None,
+        unit_metadata: Optional[
+            Union[
+                Dict[str, models.UnitMetadata], Dict[str, models.UnitMetadataTypedDict]
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -218,6 +244,8 @@ class Runs(BaseSDK):
         :param docstring: Additional notes or documentation about this test run.
         :param phases: Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data.
         :param logs: Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
+        :param metadata: Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+        :param unit_metadata: Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -251,6 +279,8 @@ class Runs(BaseSDK):
                 phases, Optional[List[models.RunCreatePhase]]
             ),
             logs=utils.get_pydantic_model(logs, Optional[List[models.RunCreateLog]]),
+            metadata=metadata,
+            unit_metadata=unit_metadata,
         )
 
         req = self._build_request_async(
@@ -361,6 +391,13 @@ class Runs(BaseSDK):
         cursor: Optional[int] = None,
         sort_by: Optional[models.RunListSortBy] = "started_at",
         sort_order: Optional[models.RunListSortOrder] = "desc",
+        metadata: Optional[
+            Union[
+                Dict[str, models.RunListQueryParamMetadataUnion],
+                Dict[str, models.RunListQueryParamMetadataUnionTypedDict],
+            ]
+        ] = None,
+        include_metadata: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -395,6 +432,8 @@ class Runs(BaseSDK):
         :param cursor:
         :param sort_by: Field to sort results by.
         :param sort_order: Sort order direction.
+        :param metadata: Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+        :param include_metadata: When true, includes the run metadata array in the response. Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -436,6 +475,10 @@ class Runs(BaseSDK):
             cursor=cursor,
             sort_by=sort_by,
             sort_order=sort_order,
+            metadata=utils.get_pydantic_model(
+                metadata, Optional[Dict[str, models.RunListQueryParamMetadataUnion]]
+            ),
+            include_metadata=include_metadata,
         )
 
         req = self._build_request(
@@ -532,6 +575,13 @@ class Runs(BaseSDK):
         cursor: Optional[int] = None,
         sort_by: Optional[models.RunListSortBy] = "started_at",
         sort_order: Optional[models.RunListSortOrder] = "desc",
+        metadata: Optional[
+            Union[
+                Dict[str, models.RunListQueryParamMetadataUnion],
+                Dict[str, models.RunListQueryParamMetadataUnionTypedDict],
+            ]
+        ] = None,
+        include_metadata: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -566,6 +616,8 @@ class Runs(BaseSDK):
         :param cursor:
         :param sort_by: Field to sort results by.
         :param sort_order: Sort order direction.
+        :param metadata: Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+        :param include_metadata: When true, includes the run metadata array in the response. Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -607,6 +659,10 @@ class Runs(BaseSDK):
             cursor=cursor,
             sort_by=sort_by,
             sort_order=sort_order,
+            metadata=utils.get_pydantic_model(
+                metadata, Optional[Dict[str, models.RunListQueryParamMetadataUnion]]
+            ),
+            include_metadata=include_metadata,
         )
 
         req = self._build_request_async(
@@ -1479,6 +1535,240 @@ class Runs(BaseSDK):
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
             return unmarshal_json_response(models.RunCreateAttachmentResponse, http_res)
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "404", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
+            raise errors.ErrorNOTFOUND(response_data, http_res)
+        if utils.match_response(http_res, "500", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorINTERNALSERVERERRORData, http_res
+            )
+            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
+        if utils.match_response(http_res, "4XX", "*"):
+            http_res_text = await utils.stream_to_text_async(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+        if utils.match_response(http_res, "5XX", "*"):
+            http_res_text = await utils.stream_to_text_async(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+
+        raise errors.APIError("Unexpected response received", http_res)
+
+    def update_metadata(
+        self,
+        *,
+        id: str,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.RunUpdateMetadataMetadata]],
+                Dict[str, Nullable[models.RunUpdateMetadataMetadataTypedDict]],
+            ]
+        ] = None,
+        metadata_replace: Optional[bool] = None,
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+        http_headers: Optional[Mapping[str, str]] = None,
+    ) -> models.RunUpdateMetadataResponse:
+        r"""Update run metadata
+
+        Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics by default (omitted keys preserved). Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+
+        :param id: Unique identifier of the run to update.
+        :param metadata: Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+        :param metadata_replace: When true, removes any metadata keys not present in `metadata`. Default: false.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        :param http_headers: Additional headers to set or replace on requests.
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+
+        if server_url is not None:
+            base_url = server_url
+        else:
+            base_url = self._get_url(base_url, url_variables)
+
+        request = models.RunUpdateMetadataRequest(
+            id=id,
+            request_body=models.RunUpdateMetadataRequestBody(
+                metadata=metadata,
+                metadata_replace=metadata_replace,
+            ),
+        )
+
+        req = self._build_request(
+            method="PATCH",
+            path="/v2/runs/{id}/metadata",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=True,
+            request_has_path_params=True,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/json",
+            http_headers=http_headers,
+            security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(
+                request.request_body,
+                False,
+                False,
+                "json",
+                models.RunUpdateMetadataRequestBody,
+            ),
+            timeout_ms=timeout_ms,
+        )
+
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, ["429", "500", "502", "503", "504"])
+
+        http_res = self.do_request(
+            hook_ctx=HookContext(
+                config=self.sdk_configuration,
+                base_url=base_url or "",
+                operation_id="run-updateMetadata",
+                oauth2_scopes=[],
+                security_source=get_security_from_env(
+                    self.sdk_configuration.security, models.Security
+                ),
+            ),
+            request=req,
+            error_status_codes=["401", "404", "4XX", "500", "5XX"],
+            retry_config=retry_config,
+        )
+
+        response_data: Any = None
+        if utils.match_response(http_res, "200", "application/json"):
+            return unmarshal_json_response(models.RunUpdateMetadataResponse, http_res)
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "404", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
+            raise errors.ErrorNOTFOUND(response_data, http_res)
+        if utils.match_response(http_res, "500", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorINTERNALSERVERERRORData, http_res
+            )
+            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
+        if utils.match_response(http_res, "4XX", "*"):
+            http_res_text = utils.stream_to_text(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+        if utils.match_response(http_res, "5XX", "*"):
+            http_res_text = utils.stream_to_text(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+
+        raise errors.APIError("Unexpected response received", http_res)
+
+    async def update_metadata_async(
+        self,
+        *,
+        id: str,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.RunUpdateMetadataMetadata]],
+                Dict[str, Nullable[models.RunUpdateMetadataMetadataTypedDict]],
+            ]
+        ] = None,
+        metadata_replace: Optional[bool] = None,
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+        http_headers: Optional[Mapping[str, str]] = None,
+    ) -> models.RunUpdateMetadataResponse:
+        r"""Update run metadata
+
+        Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics by default (omitted keys preserved). Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+
+        :param id: Unique identifier of the run to update.
+        :param metadata: Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+        :param metadata_replace: When true, removes any metadata keys not present in `metadata`. Default: false.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        :param http_headers: Additional headers to set or replace on requests.
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+
+        if server_url is not None:
+            base_url = server_url
+        else:
+            base_url = self._get_url(base_url, url_variables)
+
+        request = models.RunUpdateMetadataRequest(
+            id=id,
+            request_body=models.RunUpdateMetadataRequestBody(
+                metadata=metadata,
+                metadata_replace=metadata_replace,
+            ),
+        )
+
+        req = self._build_request_async(
+            method="PATCH",
+            path="/v2/runs/{id}/metadata",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=True,
+            request_has_path_params=True,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/json",
+            http_headers=http_headers,
+            security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(
+                request.request_body,
+                False,
+                False,
+                "json",
+                models.RunUpdateMetadataRequestBody,
+            ),
+            timeout_ms=timeout_ms,
+        )
+
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, ["429", "500", "502", "503", "504"])
+
+        http_res = await self.do_request_async(
+            hook_ctx=HookContext(
+                config=self.sdk_configuration,
+                base_url=base_url or "",
+                operation_id="run-updateMetadata",
+                oauth2_scopes=[],
+                security_source=get_security_from_env(
+                    self.sdk_configuration.security, models.Security
+                ),
+            ),
+            request=req,
+            error_status_codes=["401", "404", "4XX", "500", "5XX"],
+            retry_config=retry_config,
+        )
+
+        response_data: Any = None
+        if utils.match_response(http_res, "200", "application/json"):
+            return unmarshal_json_response(models.RunUpdateMetadataResponse, http_res)
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res

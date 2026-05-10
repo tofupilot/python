@@ -11,8 +11,8 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata
-from typing import List, Literal, Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Dict, List, Literal, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
 class UnitGetRequestTypedDict(TypedDict):
@@ -553,6 +553,14 @@ class UnitGetAttachment(BaseModel):
         return m
 
 
+UnitGetMetadataTypedDict = TypeAliasType(
+    "UnitGetMetadataTypedDict", Union[str, float, bool]
+)
+
+
+UnitGetMetadata = TypeAliasType("UnitGetMetadata", Union[str, float, bool])
+
+
 class UnitGetResponseTypedDict(TypedDict):
     r"""Units retrieved successfully"""
 
@@ -580,6 +588,8 @@ class UnitGetResponseTypedDict(TypedDict):
     r"""Run that created this unit."""
     attachments: NotRequired[List[UnitGetAttachmentTypedDict]]
     r"""Files attached to this unit."""
+    metadata: NotRequired[Dict[str, UnitGetMetadataTypedDict]]
+    r"""Custom metadata key/value pairs on the unit."""
 
 
 class UnitGetResponse(BaseModel):
@@ -621,6 +631,9 @@ class UnitGetResponse(BaseModel):
     attachments: Optional[List[UnitGetAttachment]] = None
     r"""Files attached to this unit."""
 
+    metadata: Optional[Dict[str, UnitGetMetadata]] = None
+    r"""Custom metadata key/value pairs on the unit."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -630,6 +643,7 @@ class UnitGetResponse(BaseModel):
             "children",
             "created_during",
             "attachments",
+            "metadata",
         ]
         nullable_fields = [
             "sample",

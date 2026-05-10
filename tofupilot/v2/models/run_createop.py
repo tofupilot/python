@@ -1194,6 +1194,20 @@ class RunCreateLog(BaseModel):
     r"""Line number in the source file where the log message was generated. Used for debugging and tracing log origins."""
 
 
+RunCreateMetadataTypedDict = TypeAliasType(
+    "RunCreateMetadataTypedDict", Union[str, float, bool]
+)
+
+
+RunCreateMetadata = TypeAliasType("RunCreateMetadata", Union[str, float, bool])
+
+
+UnitMetadataTypedDict = TypeAliasType("UnitMetadataTypedDict", Union[str, float, bool])
+
+
+UnitMetadata = TypeAliasType("UnitMetadata", Union[str, float, bool])
+
+
 class RunCreateRequestTypedDict(TypedDict):
     outcome: RunCreateOutcome
     r"""Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption."""
@@ -1225,6 +1239,10 @@ class RunCreateRequestTypedDict(TypedDict):
     r"""Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data."""
     logs: NotRequired[List[RunCreateLogTypedDict]]
     r"""Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries."""
+    metadata: NotRequired[Dict[str, RunCreateMetadataTypedDict]]
+    r"""Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
+    unit_metadata: NotRequired[Dict[str, UnitMetadataTypedDict]]
+    r"""Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit."""
 
 
 class RunCreateRequest(BaseModel):
@@ -1273,6 +1291,12 @@ class RunCreateRequest(BaseModel):
     logs: Optional[List[RunCreateLog]] = None
     r"""Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries."""
 
+    metadata: Optional[Dict[str, RunCreateMetadata]] = None
+    r"""Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
+
+    unit_metadata: Optional[Dict[str, UnitMetadata]] = None
+    r"""Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -1286,6 +1310,8 @@ class RunCreateRequest(BaseModel):
             "docstring",
             "phases",
             "logs",
+            "metadata",
+            "unit_metadata",
         ]
         nullable_fields = ["deployment_id", "procedure_version"]
         null_default_fields = []

@@ -10,12 +10,19 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata, RequestMetadata
-from typing import List, Literal, Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Dict, List, Literal, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
 UnitUpdateSample = Literal["golden", "failing"]
 r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
+
+UnitUpdateMetadataTypedDict = TypeAliasType(
+    "UnitUpdateMetadataTypedDict", Union[str, float, bool]
+)
+
+
+UnitUpdateMetadata = TypeAliasType("UnitUpdateMetadata", Union[str, float, bool])
 
 
 class UnitUpdateRequestBodyTypedDict(TypedDict):
@@ -31,6 +38,10 @@ class UnitUpdateRequestBodyTypedDict(TypedDict):
     r"""Array of upload IDs to attach to the unit."""
     sample: NotRequired[Nullable[UnitUpdateSample]]
     r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
+    metadata: NotRequired[Dict[str, Nullable[UnitUpdateMetadataTypedDict]]]
+    r"""Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present."""
+    metadata_replace: NotRequired[bool]
+    r"""When true, removes any metadata keys not present in `metadata`. Default: false (PATCH)."""
 
 
 class UnitUpdateRequestBody(BaseModel):
@@ -52,6 +63,12 @@ class UnitUpdateRequestBody(BaseModel):
     sample: OptionalNullable[UnitUpdateSample] = UNSET
     r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
 
+    metadata: Optional[Dict[str, Nullable[UnitUpdateMetadata]]] = None
+    r"""Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present."""
+
+    metadata_replace: Optional[bool] = None
+    r"""When true, removes any metadata keys not present in `metadata`. Default: false (PATCH)."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -61,6 +78,8 @@ class UnitUpdateRequestBody(BaseModel):
             "batch_number",
             "attachments",
             "sample",
+            "metadata",
+            "metadata_replace",
         ]
         nullable_fields = ["batch_number", "sample"]
         null_default_fields = []

@@ -9,12 +9,19 @@ from tofupilot.v2.types import (
     UNSET,
     UNSET_SENTINEL,
 )
-from typing import Literal
-from typing_extensions import NotRequired, TypedDict
+from typing import Dict, Literal, Optional, Union
+from typing_extensions import NotRequired, TypeAliasType, TypedDict
 
 
 UnitCreateSample = Literal["golden", "failing"]
 r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
+
+UnitCreateMetadataTypedDict = TypeAliasType(
+    "UnitCreateMetadataTypedDict", Union[str, float, bool]
+)
+
+
+UnitCreateMetadata = TypeAliasType("UnitCreateMetadata", Union[str, float, bool])
 
 
 class UnitCreateRequestTypedDict(TypedDict):
@@ -26,6 +33,8 @@ class UnitCreateRequestTypedDict(TypedDict):
     r"""Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created."""
     sample: NotRequired[Nullable[UnitCreateSample]]
     r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
+    metadata: NotRequired[Dict[str, UnitCreateMetadataTypedDict]]
+    r"""Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
 
 
 class UnitCreateRequest(BaseModel):
@@ -41,9 +50,12 @@ class UnitCreateRequest(BaseModel):
     sample: OptionalNullable[UnitCreateSample] = UNSET
     r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
 
+    metadata: Optional[Dict[str, UnitCreateMetadata]] = None
+    r"""Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["sample"]
+        optional_fields = ["sample", "metadata"]
         nullable_fields = ["sample"]
         null_default_fields = []
 
