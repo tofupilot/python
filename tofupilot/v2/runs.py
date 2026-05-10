@@ -1567,7 +1567,6 @@ class Runs(BaseSDK):
                 Dict[str, Nullable[models.RunUpdateMetadataMetadataTypedDict]],
             ]
         ] = None,
-        metadata_replace: Optional[bool] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -1575,11 +1574,10 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateMetadataResponse:
         r"""Update run metadata
 
-        Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics by default (omitted keys preserved). Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+        Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics: omitted keys preserved. Pass `null` as a value to delete a key.
 
         :param id: Unique identifier of the run to update.
-        :param metadata: Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
-        :param metadata_replace: When true, removes any metadata keys not present in `metadata`. Default: false.
+        :param metadata: Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1599,7 +1597,6 @@ class Runs(BaseSDK):
             id=id,
             request_body=models.RunUpdateMetadataRequestBody(
                 metadata=metadata,
-                metadata_replace=metadata_replace,
             ),
         )
 
@@ -1684,7 +1681,6 @@ class Runs(BaseSDK):
                 Dict[str, Nullable[models.RunUpdateMetadataMetadataTypedDict]],
             ]
         ] = None,
-        metadata_replace: Optional[bool] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -1692,11 +1688,10 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateMetadataResponse:
         r"""Update run metadata
 
-        Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics by default (omitted keys preserved). Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+        Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics: omitted keys preserved. Pass `null` as a value to delete a key.
 
         :param id: Unique identifier of the run to update.
-        :param metadata: Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
-        :param metadata_replace: When true, removes any metadata keys not present in `metadata`. Default: false.
+        :param metadata: Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1716,7 +1711,6 @@ class Runs(BaseSDK):
             id=id,
             request_body=models.RunUpdateMetadataRequestBody(
                 metadata=metadata,
-                metadata_replace=metadata_replace,
             ),
         )
 

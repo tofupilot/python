@@ -19,17 +19,12 @@ RunUpdateMetadataMetadata = TypeAliasType(
 
 class RunUpdateMetadataRequestBodyTypedDict(TypedDict):
     metadata: NotRequired[Dict[str, Nullable[RunUpdateMetadataMetadataTypedDict]]]
-    r"""Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present."""
-    metadata_replace: NotRequired[bool]
-    r"""When true, removes any metadata keys not present in `metadata`. Default: false."""
+    r"""Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
 
 class RunUpdateMetadataRequestBody(BaseModel):
     metadata: Optional[Dict[str, Nullable[RunUpdateMetadataMetadata]]] = None
-    r"""Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present."""
-
-    metadata_replace: Optional[bool] = None
-    r"""When true, removes any metadata keys not present in `metadata`. Default: false."""
+    r"""Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
 
 class RunUpdateMetadataRequestTypedDict(TypedDict):

@@ -1011,7 +1011,6 @@ class UnitsSDK(BaseSDK):
                 Dict[str, Nullable[models.UnitUpdateMetadataTypedDict]],
             ]
         ] = None,
-        metadata_replace: Optional[bool] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -1028,8 +1027,7 @@ class UnitsSDK(BaseSDK):
         :param batch_number: New batch number for the unit. Set to null to remove batch.
         :param attachments: Array of upload IDs to attach to the unit.
         :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
-        :param metadata: Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
-        :param metadata_replace: When true, removes any metadata keys not present in `metadata`. Default: false (PATCH).
+        :param metadata: Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1055,7 +1053,6 @@ class UnitsSDK(BaseSDK):
                 attachments=attachments,
                 sample=sample,
                 metadata=metadata,
-                metadata_replace=metadata_replace,
             ),
         )
 
@@ -1145,7 +1142,6 @@ class UnitsSDK(BaseSDK):
                 Dict[str, Nullable[models.UnitUpdateMetadataTypedDict]],
             ]
         ] = None,
-        metadata_replace: Optional[bool] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -1162,8 +1158,7 @@ class UnitsSDK(BaseSDK):
         :param batch_number: New batch number for the unit. Set to null to remove batch.
         :param attachments: Array of upload IDs to attach to the unit.
         :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
-        :param metadata: Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
-        :param metadata_replace: When true, removes any metadata keys not present in `metadata`. Default: false (PATCH).
+        :param metadata: Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1189,7 +1184,6 @@ class UnitsSDK(BaseSDK):
                 attachments=attachments,
                 sample=sample,
                 metadata=metadata,
-                metadata_replace=metadata_replace,
             ),
         )
 

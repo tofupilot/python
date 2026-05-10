@@ -39,9 +39,7 @@ class UnitUpdateRequestBodyTypedDict(TypedDict):
     sample: NotRequired[Nullable[UnitUpdateSample]]
     r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
     metadata: NotRequired[Dict[str, Nullable[UnitUpdateMetadataTypedDict]]]
-    r"""Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present."""
-    metadata_replace: NotRequired[bool]
-    r"""When true, removes any metadata keys not present in `metadata`. Default: false (PATCH)."""
+    r"""Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
 
 class UnitUpdateRequestBody(BaseModel):
@@ -64,10 +62,7 @@ class UnitUpdateRequestBody(BaseModel):
     r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
 
     metadata: Optional[Dict[str, Nullable[UnitUpdateMetadata]]] = None
-    r"""Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present."""
-
-    metadata_replace: Optional[bool] = None
-    r"""When true, removes any metadata keys not present in `metadata`. Default: false (PATCH)."""
+    r"""Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -79,7 +74,6 @@ class UnitUpdateRequestBody(BaseModel):
             "attachments",
             "sample",
             "metadata",
-            "metadata_replace",
         ]
         nullable_fields = ["batch_number", "sample"]
         null_default_fields = []
