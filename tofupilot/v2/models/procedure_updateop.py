@@ -26,6 +26,8 @@ class ProcedureUpdateRequestBodyTypedDict(TypedDict):
     r"""Branches matching any of these patterns (exact name or minimatch glob, e.g. \"renovate/*\") skip preview deployments. Empty array = no exclusions."""
     root_directory: NotRequired[Nullable[str]]
     r"""Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root."""
+    entry_point: NotRequired[Nullable[str]]
+    r"""Entry-point path inside the procedure's package dir, relative to it. Forwarded to the CLI through the deployment manifest. Empty/null = use the framework default (openhtf/plain → main.py, pytest → \".\", yaml → procedure.yaml auto-discovery)."""
 
 
 class ProcedureUpdateRequestBody(BaseModel):
@@ -52,6 +54,11 @@ class ProcedureUpdateRequestBody(BaseModel):
     ] = UNSET
     r"""Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root."""
 
+    entry_point: Annotated[
+        OptionalNullable[str], pydantic.Field(alias="entryPoint")
+    ] = UNSET
+    r"""Entry-point path inside the procedure's package dir, relative to it. Forwarded to the CLI through the deployment manifest. Empty/null = use the framework default (openhtf/plain → main.py, pytest → \".\", yaml → procedure.yaml auto-discovery)."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -60,8 +67,9 @@ class ProcedureUpdateRequestBody(BaseModel):
             "autoPushEnabled",
             "excludedBranchPatterns",
             "rootDirectory",
+            "entryPoint",
         ]
-        nullable_fields = ["productionBranch", "rootDirectory"]
+        nullable_fields = ["productionBranch", "rootDirectory", "entryPoint"]
         null_default_fields = []
 
         serialized = handler(self)

@@ -17,6 +17,7 @@ class UnitsSDK(BaseSDK):
         serial_number: str,
         part_number: str,
         revision_number: str,
+        sample: OptionalNullable[models.UnitCreateSample] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -29,6 +30,7 @@ class UnitsSDK(BaseSDK):
         :param serial_number: Unique serial number identifier for the unit. Must be unique within the organization.
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
         :param revision_number: Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
+        :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -48,6 +50,7 @@ class UnitsSDK(BaseSDK):
             serial_number=serial_number,
             part_number=part_number,
             revision_number=revision_number,
+            sample=sample,
         )
 
         req = self._build_request(
@@ -126,6 +129,7 @@ class UnitsSDK(BaseSDK):
         serial_number: str,
         part_number: str,
         revision_number: str,
+        sample: OptionalNullable[models.UnitCreateSample] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -138,6 +142,7 @@ class UnitsSDK(BaseSDK):
         :param serial_number: Unique serial number identifier for the unit. Must be unique within the organization.
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
         :param revision_number: Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
+        :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -157,6 +162,7 @@ class UnitsSDK(BaseSDK):
             serial_number=serial_number,
             part_number=part_number,
             revision_number=revision_number,
+            sample=sample,
         )
 
         req = self._build_request_async(
@@ -250,6 +256,7 @@ class UnitsSDK(BaseSDK):
         created_by_user_ids: Optional[List[str]] = None,
         created_by_station_ids: Optional[List[str]] = None,
         exclude_units_with_parent: Optional[bool] = False,
+        samples: Optional[List[models.UnitListQueryParamSample]] = None,
         limit: Optional[int] = 50,
         cursor: Optional[int] = None,
         sort_by: Optional[models.UnitListSortBy] = "created_at",
@@ -281,6 +288,7 @@ class UnitsSDK(BaseSDK):
         :param created_by_user_ids:
         :param created_by_station_ids:
         :param exclude_units_with_parent:
+        :param samples:
         :param limit: Maximum number of units to return.
         :param cursor:
         :param sort_by: Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run.
@@ -319,6 +327,7 @@ class UnitsSDK(BaseSDK):
             created_by_user_ids=created_by_user_ids,
             created_by_station_ids=created_by_station_ids,
             exclude_units_with_parent=exclude_units_with_parent,
+            samples=samples,
             limit=limit,
             cursor=cursor,
             sort_by=sort_by,
@@ -407,6 +416,7 @@ class UnitsSDK(BaseSDK):
         created_by_user_ids: Optional[List[str]] = None,
         created_by_station_ids: Optional[List[str]] = None,
         exclude_units_with_parent: Optional[bool] = False,
+        samples: Optional[List[models.UnitListQueryParamSample]] = None,
         limit: Optional[int] = 50,
         cursor: Optional[int] = None,
         sort_by: Optional[models.UnitListSortBy] = "created_at",
@@ -438,6 +448,7 @@ class UnitsSDK(BaseSDK):
         :param created_by_user_ids:
         :param created_by_station_ids:
         :param exclude_units_with_parent:
+        :param samples:
         :param limit: Maximum number of units to return.
         :param cursor:
         :param sort_by: Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run.
@@ -476,6 +487,7 @@ class UnitsSDK(BaseSDK):
             created_by_user_ids=created_by_user_ids,
             created_by_station_ids=created_by_station_ids,
             exclude_units_with_parent=exclude_units_with_parent,
+            samples=samples,
             limit=limit,
             cursor=cursor,
             sort_by=sort_by,
@@ -950,6 +962,7 @@ class UnitsSDK(BaseSDK):
         revision_number: Optional[str] = None,
         batch_number: OptionalNullable[str] = UNSET,
         attachments: Optional[List[str]] = None,
+        sample: OptionalNullable[models.UnitUpdateSample] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -965,6 +978,7 @@ class UnitsSDK(BaseSDK):
         :param revision_number: New revision number for the unit.
         :param batch_number: New batch number for the unit. Set to null to remove batch.
         :param attachments: Array of upload IDs to attach to the unit.
+        :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -988,6 +1002,7 @@ class UnitsSDK(BaseSDK):
                 revision_number=revision_number,
                 batch_number=batch_number,
                 attachments=attachments,
+                sample=sample,
             ),
         )
 
@@ -1070,6 +1085,7 @@ class UnitsSDK(BaseSDK):
         revision_number: Optional[str] = None,
         batch_number: OptionalNullable[str] = UNSET,
         attachments: Optional[List[str]] = None,
+        sample: OptionalNullable[models.UnitUpdateSample] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -1085,6 +1101,7 @@ class UnitsSDK(BaseSDK):
         :param revision_number: New revision number for the unit.
         :param batch_number: New batch number for the unit. Set to null to remove batch.
         :param attachments: Array of upload IDs to attach to the unit.
+        :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1108,6 +1125,7 @@ class UnitsSDK(BaseSDK):
                 revision_number=revision_number,
                 batch_number=batch_number,
                 attachments=attachments,
+                sample=sample,
             ),
         )
 

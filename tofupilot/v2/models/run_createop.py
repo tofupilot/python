@@ -1170,9 +1170,9 @@ class RunCreateLogTypedDict(TypedDict):
     timestamp: datetime
     r"""ISO 8601 timestamp when the log message was generated."""
     message: str
-    r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated."""
+    r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated; empty messages become \"(empty)\"."""
     source_file: str
-    r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry."""
+    r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry. Paths longer than 200 characters keep the trailing 200 (leading characters are dropped); empty values become \"unknown\"."""
     line_number: int
     r"""Line number in the source file where the log message was generated. Used for debugging and tracing log origins."""
 
@@ -1185,10 +1185,10 @@ class RunCreateLog(BaseModel):
     r"""ISO 8601 timestamp when the log message was generated."""
 
     message: str
-    r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated."""
+    r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated; empty messages become \"(empty)\"."""
 
     source_file: str
-    r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry."""
+    r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry. Paths longer than 200 characters keep the trailing 200 (leading characters are dropped); empty values become \"unknown\"."""
 
     line_number: int
     r"""Line number in the source file where the log message was generated. Used for debugging and tracing log origins."""
@@ -1210,7 +1210,7 @@ class RunCreateRequestTypedDict(TypedDict):
     procedure_version: NotRequired[Nullable[str]]
     r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
     operated_by: NotRequired[str]
-    r"""Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test."""
+    r"""Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test."""
     part_number: NotRequired[str]
     r"""Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist."""
     revision_number: NotRequired[str]
@@ -1250,7 +1250,7 @@ class RunCreateRequest(BaseModel):
     r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
 
     operated_by: Optional[str] = None
-    r"""Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test."""
+    r"""Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test."""
 
     part_number: Optional[str] = None
     r"""Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist."""

@@ -17,6 +17,8 @@ from typing_extensions import Annotated, NotRequired, TypedDict
 
 UnitListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
+UnitListQueryParamSample = Literal["golden", "failing"]
+
 UnitListSortBy = Literal[
     "serial_number", "created_at", "last_run_at", "part_number", "last_run_procedure"
 ]
@@ -45,6 +47,7 @@ class UnitListRequestTypedDict(TypedDict):
     created_by_user_ids: NotRequired[List[str]]
     created_by_station_ids: NotRequired[List[str]]
     exclude_units_with_parent: NotRequired[bool]
+    samples: NotRequired[List[UnitListQueryParamSample]]
     limit: NotRequired[int]
     r"""Maximum number of units to return."""
     cursor: NotRequired[int]
@@ -145,6 +148,11 @@ class UnitListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = False
 
+    samples: Annotated[
+        Optional[List[UnitListQueryParamSample]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
     limit: Annotated[
         Optional[int],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
@@ -167,6 +175,10 @@ class UnitListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = "desc"
     r"""Sort order direction."""
+
+
+UnitListDataSample = Literal["golden", "failing"]
+r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
 
 
 class UnitListCreatedByUserTypedDict(TypedDict):
@@ -432,6 +444,8 @@ class UnitListDataTypedDict(TypedDict):
     r"""Human-readable serial number assigned to the unit."""
     created_at: datetime
     r"""ISO 8601 timestamp when the unit was created."""
+    sample: Nullable[UnitListDataSample]
+    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
     children: List[UnitListChildTypedDict]
     r"""Child units assembled into this unit. Limited to 10 results; use Get Unit endpoint for complete list."""
     part: UnitListPartTypedDict
@@ -457,6 +471,9 @@ class UnitListData(BaseModel):
 
     created_at: datetime
     r"""ISO 8601 timestamp when the unit was created."""
+
+    sample: Nullable[UnitListDataSample]
+    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
 
     children: List[UnitListChild]
     r"""Child units assembled into this unit. Limited to 10 results; use Get Unit endpoint for complete list."""
@@ -489,6 +506,7 @@ class UnitListData(BaseModel):
             "last_run",
         ]
         nullable_fields = [
+            "sample",
             "created_by_user",
             "created_by_station",
             "batch",

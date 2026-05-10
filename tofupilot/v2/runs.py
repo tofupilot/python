@@ -49,7 +49,7 @@ class Runs(BaseSDK):
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
         :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
         :param procedure_version: Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
-        :param operated_by: Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test.
+        :param operated_by: Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test.
         :param part_number: Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist.
         :param revision_number: Hardware revision identifier for the unit. Matched case-insensitively. If none exist, a revision with this number will be created. If no revision is specified, the unit will be linked to the default revision of the part number.
         :param batch_number: Production batch identifier for grouping units manufactured together. Matched case-insensitively. If none exist, a batch with this batch number will be created. If no batch number is specified, the unit will not be linked to any batch.
@@ -210,7 +210,7 @@ class Runs(BaseSDK):
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
         :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
         :param procedure_version: Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
-        :param operated_by: Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test.
+        :param operated_by: Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test.
         :param part_number: Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist.
         :param revision_number: Hardware revision identifier for the unit. Matched case-insensitively. If none exist, a revision with this number will be created. If no revision is specified, the unit will be linked to the default revision of the part number.
         :param batch_number: Production batch identifier for grouping units manufactured together. Matched case-insensitively. If none exist, a batch with this batch number will be created. If no batch number is specified, the unit will not be linked to any batch.
@@ -342,6 +342,7 @@ class Runs(BaseSDK):
         procedure_ids: Optional[List[str]] = None,
         procedure_versions: Optional[List[str]] = None,
         serial_numbers: Optional[List[str]] = None,
+        samples: Optional[List[models.RunListQueryParamSample]] = None,
         part_numbers: Optional[List[str]] = None,
         revision_numbers: Optional[List[str]] = None,
         batch_numbers: Optional[List[str]] = None,
@@ -375,6 +376,7 @@ class Runs(BaseSDK):
         :param procedure_ids:
         :param procedure_versions:
         :param serial_numbers:
+        :param samples:
         :param part_numbers:
         :param revision_numbers:
         :param batch_numbers:
@@ -415,6 +417,7 @@ class Runs(BaseSDK):
             procedure_ids=procedure_ids,
             procedure_versions=procedure_versions,
             serial_numbers=serial_numbers,
+            samples=samples,
             part_numbers=part_numbers,
             revision_numbers=revision_numbers,
             batch_numbers=batch_numbers,
@@ -510,6 +513,7 @@ class Runs(BaseSDK):
         procedure_ids: Optional[List[str]] = None,
         procedure_versions: Optional[List[str]] = None,
         serial_numbers: Optional[List[str]] = None,
+        samples: Optional[List[models.RunListQueryParamSample]] = None,
         part_numbers: Optional[List[str]] = None,
         revision_numbers: Optional[List[str]] = None,
         batch_numbers: Optional[List[str]] = None,
@@ -543,6 +547,7 @@ class Runs(BaseSDK):
         :param procedure_ids:
         :param procedure_versions:
         :param serial_numbers:
+        :param samples:
         :param part_numbers:
         :param revision_numbers:
         :param batch_numbers:
@@ -583,6 +588,7 @@ class Runs(BaseSDK):
             procedure_ids=procedure_ids,
             procedure_versions=procedure_versions,
             serial_numbers=serial_numbers,
+            samples=samples,
             part_numbers=part_numbers,
             revision_numbers=revision_numbers,
             batch_numbers=batch_numbers,

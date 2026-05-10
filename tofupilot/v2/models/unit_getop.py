@@ -27,6 +27,10 @@ class UnitGetRequest(BaseModel):
     r"""Serial number of the unit to retrieve."""
 
 
+UnitGetSample = Literal["golden", "failing"]
+r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+
+
 class UnitGetCreatedByUserTypedDict(TypedDict):
     r"""User who created this unit."""
 
@@ -558,6 +562,8 @@ class UnitGetResponseTypedDict(TypedDict):
     r"""Unit serial number."""
     created_at: datetime
     r"""ISO 8601 timestamp when the unit was created."""
+    sample: Nullable[UnitGetSample]
+    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
     part: UnitGetPartTypedDict
     r"""Part information with revision details for this unit. Every unit must have a part and revision."""
     parent: Nullable[UnitGetParentTypedDict]
@@ -587,6 +593,9 @@ class UnitGetResponse(BaseModel):
 
     created_at: datetime
     r"""ISO 8601 timestamp when the unit was created."""
+
+    sample: Nullable[UnitGetSample]
+    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
 
     part: UnitGetPart
     r"""Part information with revision details for this unit. Every unit must have a part and revision."""
@@ -623,6 +632,7 @@ class UnitGetResponse(BaseModel):
             "attachments",
         ]
         nullable_fields = [
+            "sample",
             "created_by_user",
             "created_by_station",
             "batch",

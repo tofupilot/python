@@ -846,6 +846,7 @@ class Procedures(BaseSDK):
         auto_push_enabled: Optional[bool] = None,
         excluded_branch_patterns: Optional[List[str]] = None,
         root_directory: OptionalNullable[str] = UNSET,
+        entry_point: OptionalNullable[str] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -861,6 +862,7 @@ class Procedures(BaseSDK):
         :param auto_push_enabled: Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out.
         :param excluded_branch_patterns: Branches matching any of these patterns (exact name or minimatch glob, e.g. \"renovate/*\") skip preview deployments. Empty array = no exclusions.
         :param root_directory: Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root.
+        :param entry_point: Entry-point path inside the procedure's package dir, relative to it. Forwarded to the CLI through the deployment manifest. Empty/null = use the framework default (openhtf/plain → main.py, pytest → \".\", yaml → procedure.yaml auto-discovery).
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -884,6 +886,7 @@ class Procedures(BaseSDK):
                 auto_push_enabled=auto_push_enabled,
                 excluded_branch_patterns=excluded_branch_patterns,
                 root_directory=root_directory,
+                entry_point=entry_point,
             ),
         )
 
@@ -972,6 +975,7 @@ class Procedures(BaseSDK):
         auto_push_enabled: Optional[bool] = None,
         excluded_branch_patterns: Optional[List[str]] = None,
         root_directory: OptionalNullable[str] = UNSET,
+        entry_point: OptionalNullable[str] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -987,6 +991,7 @@ class Procedures(BaseSDK):
         :param auto_push_enabled: Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out.
         :param excluded_branch_patterns: Branches matching any of these patterns (exact name or minimatch glob, e.g. \"renovate/*\") skip preview deployments. Empty array = no exclusions.
         :param root_directory: Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root.
+        :param entry_point: Entry-point path inside the procedure's package dir, relative to it. Forwarded to the CLI through the deployment manifest. Empty/null = use the framework default (openhtf/plain → main.py, pytest → \".\", yaml → procedure.yaml auto-discovery).
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1010,6 +1015,7 @@ class Procedures(BaseSDK):
                 auto_push_enabled=auto_push_enabled,
                 excluded_branch_patterns=excluded_branch_patterns,
                 root_directory=root_directory,
+                entry_point=entry_point,
             ),
         )
 

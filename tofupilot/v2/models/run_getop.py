@@ -261,6 +261,10 @@ class RunGetProcedure(BaseModel):
         return m
 
 
+RunGetSample = Literal["golden", "failing"]
+r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+
+
 class RunGetRevisionTypedDict(TypedDict):
     r"""Revision information for this unit."""
 
@@ -335,6 +339,8 @@ class RunGetUnitTypedDict(TypedDict):
     r"""Unit ID."""
     serial_number: str
     r"""Unit serial number."""
+    sample: Nullable[RunGetSample]
+    r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
     part: RunGetPartTypedDict
     r"""Part information with revision details."""
     batch: NotRequired[Nullable[RunGetBatchTypedDict]]
@@ -350,6 +356,9 @@ class RunGetUnit(BaseModel):
     serial_number: str
     r"""Unit serial number."""
 
+    sample: Nullable[RunGetSample]
+    r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+
     part: RunGetPart
     r"""Part information with revision details."""
 
@@ -359,7 +368,7 @@ class RunGetUnit(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = ["batch"]
-        nullable_fields = ["batch"]
+        nullable_fields = ["sample", "batch"]
         null_default_fields = []
 
         serialized = handler(self)

@@ -17,6 +17,8 @@ from typing_extensions import Annotated, NotRequired, TypedDict
 
 RunListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
+RunListQueryParamSample = Literal["golden", "failing"]
+
 RunListSortBy = Literal[
     "started_at",
     "created_at",
@@ -39,6 +41,7 @@ class RunListRequestTypedDict(TypedDict):
     procedure_ids: NotRequired[List[str]]
     procedure_versions: NotRequired[List[str]]
     serial_numbers: NotRequired[List[str]]
+    samples: NotRequired[List[RunListQueryParamSample]]
     part_numbers: NotRequired[List[str]]
     revision_numbers: NotRequired[List[str]]
     batch_numbers: NotRequired[List[str]]
@@ -90,6 +93,11 @@ class RunListRequest(BaseModel):
 
     serial_numbers: Annotated[
         Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    samples: Annotated[
+        Optional[List[RunListQueryParamSample]],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
@@ -391,6 +399,10 @@ class RunListProcedure(BaseModel):
         return m
 
 
+RunListUnitSample = Literal["golden", "failing"]
+r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+
+
 class RunListRevisionTypedDict(TypedDict):
     r"""Revision information for this unit."""
 
@@ -465,6 +477,8 @@ class RunListUnitTypedDict(TypedDict):
     r"""Unit ID."""
     serial_number: str
     r"""Unit serial number."""
+    sample: Nullable[RunListUnitSample]
+    r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
     part: RunListPartTypedDict
     r"""Part information with revision details."""
     batch: NotRequired[Nullable[RunListBatchTypedDict]]
@@ -480,6 +494,9 @@ class RunListUnit(BaseModel):
     serial_number: str
     r"""Unit serial number."""
 
+    sample: Nullable[RunListUnitSample]
+    r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+
     part: RunListPart
     r"""Part information with revision details."""
 
@@ -489,7 +506,7 @@ class RunListUnit(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = ["batch"]
-        nullable_fields = ["batch"]
+        nullable_fields = ["sample", "batch"]
         null_default_fields = []
 
         serialized = handler(self)

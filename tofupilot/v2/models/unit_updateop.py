@@ -10,8 +10,12 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata, RequestMetadata
-from typing import List, Optional
+from typing import List, Literal, Optional
 from typing_extensions import Annotated, NotRequired, TypedDict
+
+
+UnitUpdateSample = Literal["golden", "failing"]
+r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
 
 
 class UnitUpdateRequestBodyTypedDict(TypedDict):
@@ -25,6 +29,8 @@ class UnitUpdateRequestBodyTypedDict(TypedDict):
     r"""New batch number for the unit. Set to null to remove batch."""
     attachments: NotRequired[List[str]]
     r"""Array of upload IDs to attach to the unit."""
+    sample: NotRequired[Nullable[UnitUpdateSample]]
+    r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
 
 
 class UnitUpdateRequestBody(BaseModel):
@@ -43,6 +49,9 @@ class UnitUpdateRequestBody(BaseModel):
     attachments: Optional[List[str]] = None
     r"""Array of upload IDs to attach to the unit."""
 
+    sample: OptionalNullable[UnitUpdateSample] = UNSET
+    r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -51,8 +60,9 @@ class UnitUpdateRequestBody(BaseModel):
             "revision_number",
             "batch_number",
             "attachments",
+            "sample",
         ]
-        nullable_fields = ["batch_number"]
+        nullable_fields = ["batch_number", "sample"]
         null_default_fields = []
 
         serialized = handler(self)
