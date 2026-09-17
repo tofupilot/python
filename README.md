@@ -145,7 +145,7 @@ client.units.attachments.delete(serial_number="SN-0001", ids=[attachment_id])
 ## Error Handling
 
 ```python
-from tofupilot.v2.models.errors import ErrorNOTFOUND, ErrorBADREQUEST
+from tofupilot.v2.errors import ErrorNOTFOUND, ErrorBADREQUEST, ErrorTIMEOUT
 
 try:
     client.runs.get(id="nonexistent-id")
@@ -153,6 +153,9 @@ except ErrorNOTFOUND as e:
     print(f"Not found: {e.message}")
 except ErrorBADREQUEST as e:
     print(f"Bad request: {e.message}")
+except ErrorTIMEOUT as e:
+    # A read query exceeded the server statement cap: narrow the window and retry
+    print(f"Timeout: {e.message}")
 ```
 
 | Exception | Status Code |
@@ -161,9 +164,11 @@ except ErrorBADREQUEST as e:
 | `ErrorUNAUTHORIZED` | 401 |
 | `ErrorFORBIDDEN` | 403 |
 | `ErrorNOTFOUND` | 404 |
+| `ErrorTIMEOUT` | 408 |
 | `ErrorCONFLICT` | 409 |
 | `ErrorUNPROCESSABLECONTENT` | 422 |
 | `ErrorINTERNALSERVERERROR` | 500 |
+| `ErrorBADGATEWAY` | 502 |
 
 ## Running Tests
 

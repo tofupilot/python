@@ -142,7 +142,7 @@ class Logs(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["400", "401", "4XX", "500", "5XX"],
+            error_status_codes=["400", "401", "408", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -159,6 +159,9 @@ class Logs(BaseSDK):
                 errors.ErrorUNAUTHORIZEDData, http_res
             )
             raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "408", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorTIMEOUTData, http_res)
+            raise errors.ErrorTIMEOUT(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -304,7 +307,7 @@ class Logs(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["400", "401", "4XX", "500", "5XX"],
+            error_status_codes=["400", "401", "408", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -321,6 +324,9 @@ class Logs(BaseSDK):
                 errors.ErrorUNAUTHORIZEDData, http_res
             )
             raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "408", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorTIMEOUTData, http_res)
+            raise errors.ErrorTIMEOUT(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -403,7 +409,7 @@ class Logs(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "404", "4XX", "500", "5XX"],
+            error_status_codes=["401", "404", "408", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -418,6 +424,9 @@ class Logs(BaseSDK):
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
             raise errors.ErrorNOTFOUND(response_data, http_res)
+        if utils.match_response(http_res, "408", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorTIMEOUTData, http_res)
+            raise errors.ErrorTIMEOUT(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -500,7 +509,7 @@ class Logs(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "404", "4XX", "500", "5XX"],
+            error_status_codes=["401", "404", "408", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -515,6 +524,9 @@ class Logs(BaseSDK):
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
             raise errors.ErrorNOTFOUND(response_data, http_res)
+        if utils.match_response(http_res, "408", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorTIMEOUTData, http_res)
+            raise errors.ErrorTIMEOUT(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res

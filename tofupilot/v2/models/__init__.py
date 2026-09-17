@@ -127,6 +127,7 @@ if TYPE_CHECKING:
         ErrorINTERNALSERVERERRORIssueTypedDict,
     )
     from .errornotfound import ErrorNOTFOUNDIssue, ErrorNOTFOUNDIssueTypedDict
+    from .errortimeout import ErrorTIMEOUTIssue, ErrorTIMEOUTIssueTypedDict
     from .errorunauthorized import (
         ErrorUNAUTHORIZEDIssue,
         ErrorUNAUTHORIZEDIssueTypedDict,
@@ -1184,6 +1185,8 @@ __all__ = [
     "ErrorINTERNALSERVERERRORIssueTypedDict",
     "ErrorNOTFOUNDIssue",
     "ErrorNOTFOUNDIssueTypedDict",
+    "ErrorTIMEOUTIssue",
+    "ErrorTIMEOUTIssueTypedDict",
     "ErrorUNAUTHORIZEDIssue",
     "ErrorUNAUTHORIZEDIssueTypedDict",
     "ErrorUNPROCESSABLECONTENTIssue",
@@ -2089,6 +2092,8 @@ _dynamic_imports: dict[str, str] = {
     "ErrorINTERNALSERVERERRORIssueTypedDict": ".errorinternalservererror",
     "ErrorNOTFOUNDIssue": ".errornotfound",
     "ErrorNOTFOUNDIssueTypedDict": ".errornotfound",
+    "ErrorTIMEOUTIssue": ".errortimeout",
+    "ErrorTIMEOUTIssueTypedDict": ".errortimeout",
     "ErrorUNAUTHORIZEDIssue": ".errorunauthorized",
     "ErrorUNAUTHORIZEDIssueTypedDict": ".errorunauthorized",
     "ErrorUNPROCESSABLECONTENTIssue": ".errorunprocessablecontent",

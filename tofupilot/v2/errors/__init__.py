@@ -14,6 +14,7 @@ if TYPE_CHECKING:
         ErrorINTERNALSERVERERRORData,
     )
     from .errornotfound import ErrorNOTFOUND, ErrorNOTFOUNDData
+    from .errortimeout import ErrorTIMEOUT, ErrorTIMEOUTData
     from .errorunauthorized import ErrorUNAUTHORIZED, ErrorUNAUTHORIZEDData
     from .errorunprocessablecontent import (
         ErrorUNPROCESSABLECONTENT,
@@ -37,6 +38,8 @@ __all__ = [
     "ErrorINTERNALSERVERERRORData",
     "ErrorNOTFOUND",
     "ErrorNOTFOUNDData",
+    "ErrorTIMEOUT",
+    "ErrorTIMEOUTData",
     "ErrorUNAUTHORIZED",
     "ErrorUNAUTHORIZEDData",
     "ErrorUNPROCESSABLECONTENT",
@@ -60,6 +63,8 @@ _dynamic_imports: dict[str, str] = {
     "ErrorINTERNALSERVERERRORData": ".errorinternalservererror",
     "ErrorNOTFOUND": ".errornotfound",
     "ErrorNOTFOUNDData": ".errornotfound",
+    "ErrorTIMEOUT": ".errortimeout",
+    "ErrorTIMEOUTData": ".errortimeout",
     "ErrorUNAUTHORIZED": ".errorunauthorized",
     "ErrorUNAUTHORIZEDData": ".errorunauthorized",
     "ErrorUNPROCESSABLECONTENT": ".errorunprocessablecontent",
