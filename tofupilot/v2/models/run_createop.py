@@ -22,7 +22,7 @@ RunCreatePhaseOutcome = Literal["PASS", "FAIL", "SKIP", "ERROR"]
 r"""Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed."""
 
 RunCreateMeasurementOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
+r"""Result of the measurement validation, across the validators on the measurement, its aggregations and its axes. Use FAIL when any validator fails, including on an empty value. Otherwise use UNSET when there are no validators or one could not run (for example a numeric limit on a string). Otherwise use PASS."""
 
 XAxisValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
@@ -976,7 +976,7 @@ class RunCreateMeasurementTypedDict(TypedDict):
     name: str
     r"""Name identifier for the measurement. Each measurement should have a descriptive name that identifies the specific data point being captured. Analytics at measurement level are computed using this name as unique identifier."""
     outcome: RunCreateMeasurementOutcome
-    r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
+    r"""Result of the measurement validation, across the validators on the measurement, its aggregations and its axes. Use FAIL when any validator fails, including on an empty value. Otherwise use UNSET when there are no validators or one could not run (for example a numeric limit on a string). Otherwise use PASS."""
     x_axis: NotRequired[Nullable[XAxisTypedDict]]
     r"""Data series with numeric data, unit, and optional validators/aggregations."""
     y_axis: NotRequired[Nullable[List[YAxiTypedDict]]]
@@ -1002,7 +1002,7 @@ class RunCreateMeasurement(BaseModel):
     r"""Name identifier for the measurement. Each measurement should have a descriptive name that identifies the specific data point being captured. Analytics at measurement level are computed using this name as unique identifier."""
 
     outcome: RunCreateMeasurementOutcome
-    r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
+    r"""Result of the measurement validation, across the validators on the measurement, its aggregations and its axes. Use FAIL when any validator fails, including on an empty value. Otherwise use UNSET when there are no validators or one could not run (for example a numeric limit on a string). Otherwise use PASS."""
 
     x_axis: OptionalNullable[XAxis] = UNSET
     r"""Data series with numeric data, unit, and optional validators/aggregations."""

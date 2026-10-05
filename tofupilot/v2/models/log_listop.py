@@ -35,9 +35,9 @@ class LogListRequestTypedDict(TypedDict):
     search_query: NotRequired[str]
     levels: NotRequired[List[QueryParamLevel]]
     timestamp_after: NotRequired[datetime]
-    r"""Filter logs with timestamp after this date (inclusive)."""
+    r"""Filter logs recorded at or after this timestamp."""
     timestamp_before: NotRequired[datetime]
-    r"""Filter logs with timestamp before this date (inclusive)."""
+    r"""Filter logs recorded at or before this timestamp."""
     source_files: NotRequired[List[str]]
     run_ids: NotRequired[List[str]]
     run_outcomes: NotRequired[List[LogListRunOutcome]]
@@ -80,13 +80,13 @@ class LogListRequest(BaseModel):
         Optional[datetime],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
-    r"""Filter logs with timestamp after this date (inclusive)."""
+    r"""Filter logs recorded at or after this timestamp."""
 
     timestamp_before: Annotated[
         Optional[datetime],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
-    r"""Filter logs with timestamp before this date (inclusive)."""
+    r"""Filter logs recorded at or before this timestamp."""
 
     source_files: Annotated[
         Optional[List[str]],

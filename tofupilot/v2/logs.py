@@ -48,8 +48,8 @@ class Logs(BaseSDK):
         :param procedure_ids:
         :param search_query:
         :param levels:
-        :param timestamp_after: Filter logs with timestamp after this date (inclusive).
-        :param timestamp_before: Filter logs with timestamp before this date (inclusive).
+        :param timestamp_after: Filter logs recorded at or after this timestamp.
+        :param timestamp_before: Filter logs recorded at or before this timestamp.
         :param source_files:
         :param run_ids:
         :param run_outcomes:
@@ -213,8 +213,8 @@ class Logs(BaseSDK):
         :param procedure_ids:
         :param search_query:
         :param levels:
-        :param timestamp_after: Filter logs with timestamp after this date (inclusive).
-        :param timestamp_before: Filter logs with timestamp before this date (inclusive).
+        :param timestamp_after: Filter logs recorded at or after this timestamp.
+        :param timestamp_before: Filter logs recorded at or before this timestamp.
         :param source_files:
         :param run_ids:
         :param run_outcomes:
