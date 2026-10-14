@@ -28,15 +28,17 @@ XAxisValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
 XAxisExpectedValueTypedDict = TypeAliasType(
-    "XAxisExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+    "XAxisExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 XAxisExpectedValue = TypeAliasType(
-    "XAxisExpectedValue", Union[bool, float, str, List[float], List[str]]
+    "XAxisExpectedValue",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 class XAxisValidatorTypedDict(TypedDict):
@@ -47,7 +49,7 @@ class XAxisValidatorTypedDict(TypedDict):
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
     expected_value: NotRequired[Nullable[XAxisExpectedValueTypedDict]]
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
     is_decisive: NotRequired[Nullable[bool]]
@@ -64,7 +66,7 @@ class XAxisValidator(BaseModel):
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
     expected_value: OptionalNullable[XAxisExpectedValue] = UNSET
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
     expression: OptionalNullable[str] = UNSET
     r"""Original expression string for display/audit purposes."""
@@ -131,15 +133,16 @@ r"""Pre-computed validation result from test framework. Server stores as-is, doe
 
 XAxisAggregationExpectedValueTypedDict = TypeAliasType(
     "XAxisAggregationExpectedValueTypedDict",
-    Union[bool, float, str, List[float], List[str]],
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 XAxisAggregationExpectedValue = TypeAliasType(
-    "XAxisAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+    "XAxisAggregationExpectedValue",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 class XAxisAggregationValidatorTypedDict(TypedDict):
@@ -150,7 +153,7 @@ class XAxisAggregationValidatorTypedDict(TypedDict):
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
     expected_value: NotRequired[Nullable[XAxisAggregationExpectedValueTypedDict]]
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
     is_decisive: NotRequired[Nullable[bool]]
@@ -167,7 +170,7 @@ class XAxisAggregationValidator(BaseModel):
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
     expected_value: OptionalNullable[XAxisAggregationExpectedValue] = UNSET
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
     expression: OptionalNullable[str] = UNSET
     r"""Original expression string for display/audit purposes."""
@@ -355,15 +358,17 @@ YAxiValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
 YAxiExpectedValueTypedDict = TypeAliasType(
-    "YAxiExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+    "YAxiExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 YAxiExpectedValue = TypeAliasType(
-    "YAxiExpectedValue", Union[bool, float, str, List[float], List[str]]
+    "YAxiExpectedValue",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 class YAxiValidatorTypedDict(TypedDict):
@@ -374,7 +379,7 @@ class YAxiValidatorTypedDict(TypedDict):
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
     expected_value: NotRequired[Nullable[YAxiExpectedValueTypedDict]]
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
     is_decisive: NotRequired[Nullable[bool]]
@@ -391,7 +396,7 @@ class YAxiValidator(BaseModel):
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
     expected_value: OptionalNullable[YAxiExpectedValue] = UNSET
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
     expression: OptionalNullable[str] = UNSET
     r"""Original expression string for display/audit purposes."""
@@ -458,15 +463,16 @@ r"""Pre-computed validation result from test framework. Server stores as-is, doe
 
 YAxiAggregationExpectedValueTypedDict = TypeAliasType(
     "YAxiAggregationExpectedValueTypedDict",
-    Union[bool, float, str, List[float], List[str]],
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 YAxiAggregationExpectedValue = TypeAliasType(
-    "YAxiAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+    "YAxiAggregationExpectedValue",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 class YAxiAggregationValidatorTypedDict(TypedDict):
@@ -477,7 +483,7 @@ class YAxiAggregationValidatorTypedDict(TypedDict):
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
     expected_value: NotRequired[Nullable[YAxiAggregationExpectedValueTypedDict]]
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
     is_decisive: NotRequired[Nullable[bool]]
@@ -494,7 +500,7 @@ class YAxiAggregationValidator(BaseModel):
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
     expected_value: OptionalNullable[YAxiAggregationExpectedValue] = UNSET
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
     expression: OptionalNullable[str] = UNSET
     r"""Original expression string for display/audit purposes."""
@@ -716,15 +722,17 @@ RunCreateValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
 RunCreateExpectedValueTypedDict = TypeAliasType(
-    "RunCreateExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+    "RunCreateExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 RunCreateExpectedValue = TypeAliasType(
-    "RunCreateExpectedValue", Union[bool, float, str, List[float], List[str]]
+    "RunCreateExpectedValue",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 class RunCreateValidatorTypedDict(TypedDict):
@@ -735,7 +743,7 @@ class RunCreateValidatorTypedDict(TypedDict):
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
     expected_value: NotRequired[Nullable[RunCreateExpectedValueTypedDict]]
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
     is_decisive: NotRequired[Nullable[bool]]
@@ -752,7 +760,7 @@ class RunCreateValidator(BaseModel):
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
     expected_value: OptionalNullable[RunCreateExpectedValue] = UNSET
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
     expression: OptionalNullable[str] = UNSET
     r"""Original expression string for display/audit purposes."""
@@ -821,15 +829,16 @@ r"""Pre-computed validation result from test framework. Server stores as-is, doe
 
 RunCreateAggregationExpectedValueTypedDict = TypeAliasType(
     "RunCreateAggregationExpectedValueTypedDict",
-    Union[bool, float, str, List[float], List[str]],
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 RunCreateAggregationExpectedValue = TypeAliasType(
-    "RunCreateAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+    "RunCreateAggregationExpectedValue",
+    Union[bool, float, str, List[float], List[str], Dict[str, Any], List[Any]],
 )
-r"""Expected value for comparison. Type depends on operator."""
+r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
 
 class RunCreateAggregationValidatorTypedDict(TypedDict):
@@ -840,7 +849,7 @@ class RunCreateAggregationValidatorTypedDict(TypedDict):
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
     expected_value: NotRequired[Nullable[RunCreateAggregationExpectedValueTypedDict]]
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
     is_decisive: NotRequired[Nullable[bool]]
@@ -857,7 +866,7 @@ class RunCreateAggregationValidator(BaseModel):
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
     expected_value: OptionalNullable[RunCreateAggregationExpectedValue] = UNSET
-    r"""Expected value for comparison. Type depends on operator."""
+    r"""Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome."""
 
     expression: OptionalNullable[str] = UNSET
     r"""Original expression string for display/audit purposes."""
