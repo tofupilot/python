@@ -3,22 +3,7 @@
 from __future__ import annotations
 from pydantic import model_serializer
 from tofupilot.v2.types import BaseModel, Nullable, UNSET_SENTINEL
-from tofupilot.v2.utils import FieldMetadata, QueryParamMetadata
-from typing import Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
-
-
-class UserListRequestTypedDict(TypedDict):
-    current: NotRequired[bool]
-    r"""If true, returns only the current authenticated user"""
-
-
-class UserListRequest(BaseModel):
-    current: Annotated[
-        Optional[bool],
-        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
-    ] = None
-    r"""If true, returns only the current authenticated user"""
+from typing_extensions import TypedDict
 
 
 class UserListResponseTypedDict(TypedDict):

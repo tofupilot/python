@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from tofupilot.v2.attachments import Attachments
     from tofupilot.v2.batches import Batches
     from tofupilot.v2.deployments import Deployments
+    from tofupilot.v2.identity import Identity
     from tofupilot.v2.imports import Imports
     from tofupilot.v2.logs import Logs
     from tofupilot.v2.measurements_sdk import MeasurementsSDK
@@ -47,6 +48,7 @@ class TofuPilot(BaseSDK):
     phases: "PhasesSDK"
     measurements: "MeasurementsSDK"
     deployments: "Deployments"
+    identity: "Identity"
     _sub_sdk_map = {
         "procedures": ("tofupilot.v2.procedures", "Procedures"),
         "runs": ("tofupilot.v2.runs", "Runs"),
@@ -61,6 +63,7 @@ class TofuPilot(BaseSDK):
         "phases": ("tofupilot.v2.phases_sdk", "PhasesSDK"),
         "measurements": ("tofupilot.v2.measurements_sdk", "MeasurementsSDK"),
         "deployments": ("tofupilot.v2.deployments", "Deployments"),
+        "identity": ("tofupilot.v2.identity", "Identity"),
     }
 
     def __init__(

@@ -1,6 +1,8 @@
-"""Test listing users."""
+"""Test listing users and the current-user route."""
 
+import pytest
 from tofupilot.v2 import TofuPilot
+from tofupilot.v2.errors import ErrorFORBIDDEN
 from tofupilot.v2.models import UserListResponse
 
 
@@ -21,24 +23,35 @@ class TestListUsers:
         assert isinstance(user.banned, bool)
 
     def test_get_current_user(self, client: TofuPilot, auth_type: str) -> None:
-        """Test listing with current=True returns only the authenticated user."""
+        """GET /v2/users/current returns the authenticated user; a station key is refused."""
         if auth_type == "station":
-            result = client.users.list(current=True)
-            assert isinstance(result, list)
-            assert len(result) == 0
+            # Stations have no current user, the mirror of users on stations.get_current
+            with pytest.raises(ErrorFORBIDDEN) as exc_info:
+                client.users.get_current()
+            assert exc_info.value.status_code == 403
             return
 
-        result = client.users.list(current=True)
+        current_user = client.users.get_current()
 
-        assert isinstance(result, list)
-        assert len(result) == 1
-
-        current_user = result[0]
-        assert isinstance(current_user, UserListResponse)
         assert len(current_user.id) > 0
         assert len(current_user.email) > 0
         assert isinstance(current_user.banned, bool)
 
-        all_users = client.users.list()
-        all_ids = [u.id for u in all_users]
+        all_ids = [u.id for u in client.users.list()]
         assert current_user.id in all_ids
+
+    def test_whoami(self, client: TofuPilot, auth_type: str) -> None:
+        """GET /v2/whoami names the identity behind either kind of key."""
+        me = client.identity.whoami()
+
+        assert me.organization.slug
+        if auth_type == "station":
+            assert me.type == "station"
+            assert me.user is None
+            assert me.station is not None
+            assert me.station.id == client.stations.get_current().id
+        else:
+            assert me.type == "user"
+            assert me.station is None
+            assert me.user is not None
+            assert me.user.id == client.users.get_current().id
