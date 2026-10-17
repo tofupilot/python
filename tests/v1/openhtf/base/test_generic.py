@@ -1,4 +1,4 @@
-"""Adapted from https://github.com/tofupilot/examples/tree/aad0dc20dd10b55a24378e9b6754712d3401d386/testing_examples/openhtf/generic"""
+"""Adapted from the former tofupilot/examples repository (testing_examples/openhtf/generic)"""
 
 import random
 

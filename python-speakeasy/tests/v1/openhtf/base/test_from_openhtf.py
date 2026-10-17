@@ -1,6 +1,6 @@
 """Test run creation from OpenHTF reports."""
 
-# Adapted from https://github.com/tofupilot/examples/blob/5cf044d0e55c11ea55114014edb206605689aa6d/qa/client/create_run_from_openhtf_report/basic/main.py
+# Adapted from the former tofupilot/examples repository (qa/client/create_run_from_openhtf_report/basic/main.py)
 import pytest
 import logging
 from typing import Generator
@@ -105,7 +105,7 @@ class TestCreateRunFromOpenHTF:
 
     def test_openhtf_run_creation_with_attachments(self, tofupilot_server_url: str, api_key: str, procedure_identifier: str) -> None:
         """Test OpenHTF run creation with file attachments."""
-        # Adapted from https://github.com/tofupilot/examples/blob/5cf044d0e55c11ea55114014edb206605689aa6d/qa/client/create_run_from_openhtf_report/with_attachments/main.py
+        # Adapted from the former tofupilot/examples repository (qa/client/create_run_from_openhtf_report/with_attachments/main.py)
         
         test = Openhtf_Test(
             power_on_test,
