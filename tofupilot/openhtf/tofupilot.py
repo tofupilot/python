@@ -1,12 +1,9 @@
 """Deprecated compatibility wrapper around the `upload` output callback.
 
-The original `TofuPilot` context manager uploaded the run *and* streamed the
-live test state over MQTT to the legacy operator UI. The streaming backend is
-decommissioned (the server responds "streaming not configured"), and the
-TofuPilot CLI (`tofupilot run`) provides the live operator UI now. This
-wrapper keeps `with TofuPilot(test):` working for existing bench scripts:
-it registers the `upload` callback and preserves the old quiet Ctrl-C exit,
-nothing more.
+Keeps `with TofuPilot(test):` working for existing bench scripts: it
+registers the `upload` callback and preserves the old quiet Ctrl-C exit,
+nothing more. The TofuPilot CLI (`tofupilot run`) provides the live operator
+UI.
 """
 
 import warnings
@@ -34,8 +31,7 @@ class TofuPilot:
     `tofupilot run`.
 
     Behavioral notes for scripts migrating off this wrapper:
-    - `stream` is accepted but ignored — the legacy MQTT operator UI it fed
-      no longer exists on the server.
+    - `stream` is accepted for compatibility and ignored.
     - The wrapper suppresses `KeyboardInterrupt` on exit (quiet Ctrl-C), as
       it always did. The plain callback does not.
     """
@@ -51,8 +47,7 @@ class TofuPilot:
         warnings.warn(
             "tofupilot.openhtf.TofuPilot is deprecated and will be removed in "
             "a future release. It now only wraps the `upload` output "
-            "callback; the live operator UI it used to stream to is provided "
-            "by the TofuPilot CLI.\n"
+            "callback; the live operator UI is provided by the TofuPilot CLI.\n"
             "  Uploading only:   test.add_output_callbacks(upload())\n"
             "  Live operator UI: run the test with `tofupilot run`\n"
             "See https://tofupilot.com/docs/frameworks/openhtf",
@@ -62,7 +57,7 @@ class TofuPilot:
         self.test = test
         # Public attributes the original wrapper exposed; kept so legacy
         # scripts that introspect the object (`if tp.stream:`, logging
-        # `tp.url`) keep running. `watcher`/`mqttClient` are gone with MQTT.
+        # `tp.url`) keep running.
         self.stream = stream
         self.api_key = api_key
         self.url = url
@@ -71,12 +66,6 @@ class TofuPilot:
         self._upload = upload(api_key=api_key, url=url, verify=verify)
         self.client = self._upload.client
         self._logger = self.client._logger
-        if stream:
-            self._logger.warning(
-                "Operator UI streaming was removed; the CLI (`tofupilot run`) "
-                "provides the live operator UI. Pass stream=False to silence "
-                "this message."
-            )
 
     def __enter__(self):
         self.test.add_output_callbacks(self._upload)

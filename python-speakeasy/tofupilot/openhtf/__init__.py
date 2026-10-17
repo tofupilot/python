@@ -5,9 +5,7 @@
 the test finishes.
 
 `TofuPilot` is a deprecated context manager kept for existing bench scripts;
-it wraps that same callback and warns on use. The MQTT streaming it used to
-provide is gone — the TofuPilot CLI (`tofupilot run`) is the live operator
-UI now.
+it wraps that same callback and warns on use.
 """
 
 from ..error_tracking import ApiV1Error

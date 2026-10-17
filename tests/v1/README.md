@@ -158,7 +158,7 @@
 
 ## V1 Summary
 
-> **Scenarios vs pytest items:** Each row counts one unique test scenario (multiple rows can map to the same function). V1 has 43 unique test functions → **87 pytest items**: `test_all_the_things` ×4 (×2 auth × ×2 stream), `test_invalid_api_key` ×1, 41 other functions ×2 (auth).
+> **Scenarios vs pytest items:** Each row counts one unique test scenario (multiple rows can map to the same function). V1 has 43 unique test functions → **85 pytest items**: `test_all_the_things` ×2 (auth), `test_invalid_api_key` ×1, 41 other functions ×2 (auth).
 
 | Category                       | Scenarios | Asserted | Exercised | Untested |
 | ------------------------------ | --------- | -------- | --------- | -------- |
