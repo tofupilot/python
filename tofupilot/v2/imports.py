@@ -14,6 +14,7 @@ class Imports(BaseSDK):
         self,
         *,
         items: Union[List[models.Item], List[models.ItemTypedDict]],
+        allow_duplicate: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -21,9 +22,10 @@ class Imports(BaseSDK):
     ) -> models.ImportStructuredResponse:
         r"""Import runs from structured files
 
-        Import one or more previously uploaded structured files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit; all run ids are returned in the item’s `ids`.
+        Import one or more previously uploaded structured files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit, and all run ids are returned in the item’s `ids`. A file whose exact content was already imported in your organization is not imported twice: its result returns the existing runs with `already_imported: true`, so retrying a batch is safe. A file whose earlier import created only some of its runs is not completed: the `warnings` of that first import say how to create the rest. Set `allow_duplicate` to import the file again as new runs, next to the existing ones.
 
         :param items: Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others.
+        :param allow_duplicate: Import every file even if the same content was already imported. By default, a file whose exact content already has a run in your organization is not imported again: its result returns the existing run with `already_imported: true`. Set to true to import such files again as new runs, next to the existing ones.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -41,6 +43,7 @@ class Imports(BaseSDK):
 
         request = models.ImportStructuredRequest(
             items=utils.get_pydantic_model(items, List[models.Item]),
+            allow_duplicate=allow_duplicate,
         )
 
         req = self._build_request(
@@ -119,6 +122,7 @@ class Imports(BaseSDK):
         self,
         *,
         items: Union[List[models.Item], List[models.ItemTypedDict]],
+        allow_duplicate: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -126,9 +130,10 @@ class Imports(BaseSDK):
     ) -> models.ImportStructuredResponse:
         r"""Import runs from structured files
 
-        Import one or more previously uploaded structured files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit; all run ids are returned in the item’s `ids`.
+        Import one or more previously uploaded structured files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit, and all run ids are returned in the item’s `ids`. A file whose exact content was already imported in your organization is not imported twice: its result returns the existing runs with `already_imported: true`, so retrying a batch is safe. A file whose earlier import created only some of its runs is not completed: the `warnings` of that first import say how to create the rest. Set `allow_duplicate` to import the file again as new runs, next to the existing ones.
 
         :param items: Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others.
+        :param allow_duplicate: Import every file even if the same content was already imported. By default, a file whose exact content already has a run in your organization is not imported again: its result returns the existing run with `already_imported: true`. Set to true to import such files again as new runs, next to the existing ones.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -146,6 +151,7 @@ class Imports(BaseSDK):
 
         request = models.ImportStructuredRequest(
             items=utils.get_pydantic_model(items, List[models.Item]),
+            allow_duplicate=allow_duplicate,
         )
 
         req = self._build_request_async(

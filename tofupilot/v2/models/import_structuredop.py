@@ -28,11 +28,16 @@ class Item(BaseModel):
 class ImportStructuredRequestTypedDict(TypedDict):
     items: List[ItemTypedDict]
     r"""Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others."""
+    allow_duplicate: NotRequired[bool]
+    r"""Import every file even if the same content was already imported. By default, a file whose exact content already has a run in your organization is not imported again: its result returns the existing run with `already_imported: true`. Set to true to import such files again as new runs, next to the existing ones."""
 
 
 class ImportStructuredRequest(BaseModel):
     items: List[Item]
     r"""Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others."""
+
+    allow_duplicate: Optional[bool] = False
+    r"""Import every file even if the same content was already imported. By default, a file whose exact content already has a run in your organization is not imported again: its result returns the existing run with `already_imported: true`. Set to true to import such files again as new runs, next to the existing ones."""
 
 
 class ResultTypedDict(TypedDict):
@@ -41,9 +46,13 @@ class ResultTypedDict(TypedDict):
     success: bool
     r"""Whether the file was imported successfully."""
     id: NotRequired[str]
-    r"""ID of the created run (present when success is true). For a multi-run file this is the first run; see `ids`."""
+    r"""ID of the run (present when success is true): the run created, or the existing run when the file was already imported. For a multi-run file this is one of its runs, see `ids`."""
     ids: NotRequired[List[str]]
-    r"""All run ids created from the file. Present when the file produced more than one run."""
+    r"""All run ids of the file: the runs created, or the existing runs when the file was already imported. Present when there is more than one."""
+    already_imported: NotRequired[bool]
+    r"""Present when success is true. True when the same file content was already imported in your organization and at least one of its runs still exists: `id` and `ids` are those runs and nothing was created. A file whose earlier import created only some of its runs is not completed: delete its runs, then import it again. For a file with several runs, `ids` comes in no guaranteed order, so `id` may name another run of that file than the first import returned."""
+    warnings: NotRequired[List[str]]
+    r"""Non-fatal notes about this file, present when there are any: runs that failed while the others were imported, and how to create them later. They come only with the import that created the runs: a retry of the same file answers without them, so a client that lost that response should compare `ids` with the units it expects."""
     error: NotRequired[str]
     r"""Error message (present when success is false)."""
 
@@ -56,10 +65,16 @@ class Result(BaseModel):
     r"""Whether the file was imported successfully."""
 
     id: Optional[str] = None
-    r"""ID of the created run (present when success is true). For a multi-run file this is the first run; see `ids`."""
+    r"""ID of the run (present when success is true): the run created, or the existing run when the file was already imported. For a multi-run file this is one of its runs, see `ids`."""
 
     ids: Optional[List[str]] = None
-    r"""All run ids created from the file. Present when the file produced more than one run."""
+    r"""All run ids of the file: the runs created, or the existing runs when the file was already imported. Present when there is more than one."""
+
+    already_imported: Optional[bool] = None
+    r"""Present when success is true. True when the same file content was already imported in your organization and at least one of its runs still exists: `id` and `ids` are those runs and nothing was created. A file whose earlier import created only some of its runs is not completed: delete its runs, then import it again. For a file with several runs, `ids` comes in no guaranteed order, so `id` may name another run of that file than the first import returned."""
+
+    warnings: Optional[List[str]] = None
+    r"""Non-fatal notes about this file, present when there are any: runs that failed while the others were imported, and how to create them later. They come only with the import that created the runs: a retry of the same file answers without them, so a client that lost that response should compare `ids` with the units it expects."""
 
     error: Optional[str] = None
     r"""Error message (present when success is false)."""
