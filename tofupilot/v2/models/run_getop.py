@@ -1133,6 +1133,8 @@ class RunGetPhaseTypedDict(TypedDict):
     r"""ISO 8601 duration of the phase (computed from started_at and ended_at)."""
     retry_count: int
     r"""Zero-based retry attempt index. 0 = first attempt, 1 = first retry, etc."""
+    sequence_path: Nullable[str]
+    r"""Path of the sequence call this phase ran in, matching one `sequences[].path`. Null for a phase written in the procedure itself."""
     measurements: List[RunGetMeasurementTypedDict]
     r"""Array of measurements taken during this phase."""
     docstring: NotRequired[Nullable[str]]
@@ -1161,6 +1163,9 @@ class RunGetPhase(BaseModel):
     retry_count: int
     r"""Zero-based retry attempt index. 0 = first attempt, 1 = first retry, etc."""
 
+    sequence_path: Nullable[str]
+    r"""Path of the sequence call this phase ran in, matching one `sequences[].path`. Null for a phase written in the procedure itself."""
+
     measurements: List[RunGetMeasurement]
     r"""Array of measurements taken during this phase."""
 
@@ -1170,7 +1175,94 @@ class RunGetPhase(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = ["docstring"]
-        nullable_fields = ["docstring"]
+        nullable_fields = ["sequence_path", "docstring"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
+RunGetSequenceOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED", "SKIP"]
+r"""Outcome of the call, aggregated over its phases like a run outcome. SKIP when none of them ran."""
+
+
+class RunGetSequenceTypedDict(TypedDict):
+    id: str
+    path: str
+    r"""Instance keys of the call and of the calls it is nested in, joined by `/`. Unique within the run."""
+    key: str
+    r"""The call's own instance key (last segment of `path`)."""
+    parent_path: Nullable[str]
+    r"""Path of the enclosing call, null for a call made in the procedure itself."""
+    name: str
+    source: Nullable[str]
+    r"""The sequence reference as written in the procedure (`uses:`)."""
+    outcome: RunGetSequenceOutcome
+    r"""Outcome of the call, aggregated over its phases like a run outcome. SKIP when none of them ran."""
+    started_at: Nullable[datetime]
+    ended_at: Nullable[datetime]
+    duration: Nullable[str]
+    r"""ISO 8601 duration, null for a skipped call."""
+
+
+class RunGetSequence(BaseModel):
+    id: str
+
+    path: str
+    r"""Instance keys of the call and of the calls it is nested in, joined by `/`. Unique within the run."""
+
+    key: str
+    r"""The call's own instance key (last segment of `path`)."""
+
+    parent_path: Nullable[str]
+    r"""Path of the enclosing call, null for a call made in the procedure itself."""
+
+    name: str
+
+    source: Nullable[str]
+    r"""The sequence reference as written in the procedure (`uses:`)."""
+
+    outcome: RunGetSequenceOutcome
+    r"""Outcome of the call, aggregated over its phases like a run outcome. SKIP when none of them ran."""
+
+    started_at: Nullable[datetime]
+
+    ended_at: Nullable[datetime]
+
+    duration: Nullable[str]
+    r"""ISO 8601 duration, null for a skipped call."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = [
+            "parent_path",
+            "source",
+            "started_at",
+            "ended_at",
+            "duration",
+        ]
         null_default_fields = []
 
         serialized = handler(self)
@@ -1387,6 +1479,8 @@ class RunGetResponseTypedDict(TypedDict):
     r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
     phases: NotRequired[List[RunGetPhaseTypedDict]]
     r"""Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included."""
+    sequences: NotRequired[List[RunGetSequenceTypedDict]]
+    r"""Sequence calls of this run, parents before their nested calls. Each phase names its call through `sequence_path`. Returned together with `phases`, empty for a run without sequences."""
     attachments: NotRequired[List[RunGetAttachmentTypedDict]]
     r"""Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included."""
     logs: NotRequired[List[RunGetLogTypedDict]]
@@ -1447,6 +1541,9 @@ class RunGetResponse(BaseModel):
     phases: Optional[List[RunGetPhase]] = None
     r"""Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included."""
 
+    sequences: Optional[List[RunGetSequence]] = None
+    r"""Sequence calls of this run, parents before their nested calls. Each phase names its call through `sequence_path`. Returned together with `phases`, empty for a run without sequences."""
+
     attachments: Optional[List[RunGetAttachment]] = None
     r"""Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included."""
 
@@ -1466,6 +1563,7 @@ class RunGetResponse(BaseModel):
             "created_by_station",
             "operated_by",
             "phases",
+            "sequences",
             "attachments",
             "logs",
             "sub_units",

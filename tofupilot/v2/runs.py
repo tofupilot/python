@@ -34,6 +34,11 @@ class Runs(BaseSDK):
         phases: Optional[
             Union[List[models.RunCreatePhase], List[models.RunCreatePhaseTypedDict]]
         ] = None,
+        sequences: OptionalNullable[
+            Union[
+                List[models.RunCreateSequence], List[models.RunCreateSequenceTypedDict]
+            ]
+        ] = UNSET,
         logs: Optional[
             Union[List[models.RunCreateLog], List[models.RunCreateLogTypedDict]]
         ] = None,
@@ -75,6 +80,7 @@ class Runs(BaseSDK):
         :param sub_units: Array of sub-unit serial numbers that are part of this main unit. Matched case-insensitively. Each sub-unit must already exist and will be linked as a sub-component of the main unit under test. If no sub-units are specified, the unit will be created without sub-unit relationships.
         :param docstring: Additional notes or documentation about this test run.
         :param phases: Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data.
+        :param sequences: Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences.
         :param logs: Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
         :param metadata: Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param unit_metadata: Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
@@ -113,6 +119,9 @@ class Runs(BaseSDK):
             docstring=docstring,
             phases=utils.get_pydantic_model(
                 phases, Optional[List[models.RunCreatePhase]]
+            ),
+            sequences=utils.get_pydantic_model(
+                sequences, OptionalNullable[List[models.RunCreateSequence]]
             ),
             logs=utils.get_pydantic_model(logs, Optional[List[models.RunCreateLog]]),
             metadata=metadata,
@@ -235,6 +244,11 @@ class Runs(BaseSDK):
         phases: Optional[
             Union[List[models.RunCreatePhase], List[models.RunCreatePhaseTypedDict]]
         ] = None,
+        sequences: OptionalNullable[
+            Union[
+                List[models.RunCreateSequence], List[models.RunCreateSequenceTypedDict]
+            ]
+        ] = UNSET,
         logs: Optional[
             Union[List[models.RunCreateLog], List[models.RunCreateLogTypedDict]]
         ] = None,
@@ -276,6 +290,7 @@ class Runs(BaseSDK):
         :param sub_units: Array of sub-unit serial numbers that are part of this main unit. Matched case-insensitively. Each sub-unit must already exist and will be linked as a sub-component of the main unit under test. If no sub-units are specified, the unit will be created without sub-unit relationships.
         :param docstring: Additional notes or documentation about this test run.
         :param phases: Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data.
+        :param sequences: Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences.
         :param logs: Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
         :param metadata: Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param unit_metadata: Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
@@ -314,6 +329,9 @@ class Runs(BaseSDK):
             docstring=docstring,
             phases=utils.get_pydantic_model(
                 phases, Optional[List[models.RunCreatePhase]]
+            ),
+            sequences=utils.get_pydantic_model(
+                sequences, OptionalNullable[List[models.RunCreateSequence]]
             ),
             logs=utils.get_pydantic_model(logs, Optional[List[models.RunCreateLog]]),
             metadata=metadata,
@@ -454,6 +472,7 @@ class Runs(BaseSDK):
             ]
         ] = None,
         include_metadata: Optional[bool] = False,
+        include_sequences: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -496,6 +515,7 @@ class Runs(BaseSDK):
         :param sort_order: Sort order direction.
         :param metadata: Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
         :param include_metadata: When true, includes the run metadata array in the response. Defaults to false to keep payloads small.
+        :param include_sequences: When true, includes the top-level sequence calls of each run (the calls made in the procedure itself, not the calls nested in them). Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -547,6 +567,7 @@ class Runs(BaseSDK):
                 metadata, Optional[Dict[str, models.RunListQueryParamMetadataUnion]]
             ),
             include_metadata=include_metadata,
+            include_sequences=include_sequences,
         )
 
         req = self._build_request(
@@ -659,6 +680,7 @@ class Runs(BaseSDK):
             ]
         ] = None,
         include_metadata: Optional[bool] = False,
+        include_sequences: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -701,6 +723,7 @@ class Runs(BaseSDK):
         :param sort_order: Sort order direction.
         :param metadata: Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
         :param include_metadata: When true, includes the run metadata array in the response. Defaults to false to keep payloads small.
+        :param include_sequences: When true, includes the top-level sequence calls of each run (the calls made in the procedure itself, not the calls nested in them). Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -752,6 +775,7 @@ class Runs(BaseSDK):
                 metadata, Optional[Dict[str, models.RunListQueryParamMetadataUnion]]
             ),
             include_metadata=include_metadata,
+            include_sequences=include_sequences,
         )
 
         req = self._build_request_async(

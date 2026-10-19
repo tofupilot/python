@@ -792,6 +792,8 @@ class PhaseGetResponseTypedDict(TypedDict):
     ended_at: datetime
     duration: str
     retry_count: int
+    sequence_path: Nullable[str]
+    r"""Path of the sequence call the phase ran in. Null for a phase written in the procedure itself."""
     measurements: List[PhaseGetMeasurementTypedDict]
     run: PhaseGetRunTypedDict
     procedure: PhaseGetProcedureTypedDict
@@ -815,6 +817,9 @@ class PhaseGetResponse(BaseModel):
 
     retry_count: int
 
+    sequence_path: Nullable[str]
+    r"""Path of the sequence call the phase ran in. Null for a phase written in the procedure itself."""
+
     measurements: List[PhaseGetMeasurement]
 
     run: PhaseGetRun
@@ -826,7 +831,7 @@ class PhaseGetResponse(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = ["docstring"]
-        nullable_fields = ["docstring"]
+        nullable_fields = ["sequence_path", "docstring"]
         null_default_fields = []
 
         serialized = handler(self)

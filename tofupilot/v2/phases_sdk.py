@@ -17,6 +17,7 @@ class PhasesSDK(BaseSDK):
         procedure_id: str,
         names: Optional[List[str]] = None,
         outcomes: Optional[List[models.PhaseListQueryParamOutcome]] = None,
+        sequence_paths: Optional[List[str]] = None,
         started_after: Optional[datetime] = None,
         started_before: Optional[datetime] = None,
         exclude_retries: Optional[bool] = True,
@@ -52,6 +53,7 @@ class PhasesSDK(BaseSDK):
         :param procedure_id: Procedure to list phases for. Required: phases are scoped to a single procedure.
         :param names:
         :param outcomes:
+        :param sequence_paths:
         :param started_after:
         :param started_before:
         :param exclude_retries:
@@ -94,6 +96,7 @@ class PhasesSDK(BaseSDK):
             procedure_id=procedure_id,
             names=names,
             outcomes=outcomes,
+            sequence_paths=sequence_paths,
             started_after=started_after,
             started_before=started_before,
             exclude_retries=exclude_retries,
@@ -194,6 +197,7 @@ class PhasesSDK(BaseSDK):
         procedure_id: str,
         names: Optional[List[str]] = None,
         outcomes: Optional[List[models.PhaseListQueryParamOutcome]] = None,
+        sequence_paths: Optional[List[str]] = None,
         started_after: Optional[datetime] = None,
         started_before: Optional[datetime] = None,
         exclude_retries: Optional[bool] = True,
@@ -229,6 +233,7 @@ class PhasesSDK(BaseSDK):
         :param procedure_id: Procedure to list phases for. Required: phases are scoped to a single procedure.
         :param names:
         :param outcomes:
+        :param sequence_paths:
         :param started_after:
         :param started_before:
         :param exclude_retries:
@@ -271,6 +276,7 @@ class PhasesSDK(BaseSDK):
             procedure_id=procedure_id,
             names=names,
             outcomes=outcomes,
+            sequence_paths=sequence_paths,
             started_after=started_after,
             started_before=started_before,
             exclude_retries=exclude_retries,

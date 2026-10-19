@@ -135,6 +135,8 @@ class RunListRequestTypedDict(TypedDict):
     r"""Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`."""
     include_metadata: NotRequired[bool]
     r"""When true, includes the run metadata array in the response. Defaults to false to keep payloads small."""
+    include_sequences: NotRequired[bool]
+    r"""When true, includes the top-level sequence calls of each run (the calls made in the procedure itself, not the calls nested in them). Defaults to false to keep payloads small."""
 
 
 class RunListRequest(BaseModel):
@@ -307,6 +309,12 @@ class RunListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = False
     r"""When true, includes the run metadata array in the response. Defaults to false to keep payloads small."""
+
+    include_sequences: Annotated[
+        Optional[bool],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = False
+    r"""When true, includes the top-level sequence calls of each run (the calls made in the procedure itself, not the calls nested in them). Defaults to false to keep payloads small."""
 
 
 RunListDataOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
@@ -656,6 +664,93 @@ RunListDataMetadataTypedDict = TypeAliasType(
 RunListDataMetadata = TypeAliasType("RunListDataMetadata", Union[str, float, bool])
 
 
+RunListSequenceOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED", "SKIP"]
+r"""Outcome of the call, aggregated over its phases like a run outcome. SKIP when none of them ran."""
+
+
+class RunListSequenceTypedDict(TypedDict):
+    id: str
+    path: str
+    r"""Instance keys of the call and of the calls it is nested in, joined by `/`. Unique within the run."""
+    key: str
+    r"""The call's own instance key (last segment of `path`)."""
+    parent_path: Nullable[str]
+    r"""Path of the enclosing call, null for a call made in the procedure itself."""
+    name: str
+    source: Nullable[str]
+    r"""The sequence reference as written in the procedure (`uses:`)."""
+    outcome: RunListSequenceOutcome
+    r"""Outcome of the call, aggregated over its phases like a run outcome. SKIP when none of them ran."""
+    started_at: Nullable[datetime]
+    ended_at: Nullable[datetime]
+    duration: Nullable[str]
+    r"""ISO 8601 duration, null for a skipped call."""
+
+
+class RunListSequence(BaseModel):
+    id: str
+
+    path: str
+    r"""Instance keys of the call and of the calls it is nested in, joined by `/`. Unique within the run."""
+
+    key: str
+    r"""The call's own instance key (last segment of `path`)."""
+
+    parent_path: Nullable[str]
+    r"""Path of the enclosing call, null for a call made in the procedure itself."""
+
+    name: str
+
+    source: Nullable[str]
+    r"""The sequence reference as written in the procedure (`uses:`)."""
+
+    outcome: RunListSequenceOutcome
+    r"""Outcome of the call, aggregated over its phases like a run outcome. SKIP when none of them ran."""
+
+    started_at: Nullable[datetime]
+
+    ended_at: Nullable[datetime]
+
+    duration: Nullable[str]
+    r"""ISO 8601 duration, null for a skipped call."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = [
+            "parent_path",
+            "source",
+            "started_at",
+            "ended_at",
+            "duration",
+        ]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
 class RunListDataTypedDict(TypedDict):
     id: str
     r"""Unique identifier for the run."""
@@ -689,6 +784,8 @@ class RunListDataTypedDict(TypedDict):
     r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
     metadata: NotRequired[Dict[str, RunListDataMetadataTypedDict]]
     r"""Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`."""
+    sequences: NotRequired[List[RunListSequenceTypedDict]]
+    r"""Top-level sequence calls of the run, ordered by start time. Only present when the request sets `include_sequences=true`."""
 
 
 class RunListData(BaseModel):
@@ -740,6 +837,9 @@ class RunListData(BaseModel):
     metadata: Optional[Dict[str, RunListDataMetadata]] = None
     r"""Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`."""
 
+    sequences: Optional[List[RunListSequence]] = None
+    r"""Top-level sequence calls of the run, ordered by start time. Only present when the request sets `include_sequences=true`."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -748,6 +848,7 @@ class RunListData(BaseModel):
             "created_by_station",
             "operated_by",
             "metadata",
+            "sequences",
         ]
         nullable_fields = [
             "docstring",

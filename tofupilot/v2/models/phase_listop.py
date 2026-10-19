@@ -31,6 +31,7 @@ class PhaseListRequestTypedDict(TypedDict):
     r"""Procedure to list phases for. Required: phases are scoped to a single procedure."""
     names: NotRequired[List[str]]
     outcomes: NotRequired[List[PhaseListQueryParamOutcome]]
+    sequence_paths: NotRequired[List[str]]
     started_after: NotRequired[datetime]
     started_before: NotRequired[datetime]
     exclude_retries: NotRequired[bool]
@@ -73,6 +74,11 @@ class PhaseListRequest(BaseModel):
 
     outcomes: Annotated[
         Optional[List[PhaseListQueryParamOutcome]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    sequence_paths: Annotated[
+        Optional[List[str]],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
@@ -221,6 +227,8 @@ class PhaseListDataTypedDict(TypedDict):
     r"""Phase duration in milliseconds. Null when start or end is missing."""
     retry_count: int
     r"""Retry attempt number of the phase (0 for the first attempt)."""
+    sequence_path: Nullable[str]
+    r"""Path of the sequence call the phase ran in. Null for a phase written in the procedure itself."""
     is_final_attempt: bool
     r"""True when this is the final attempt of the phase."""
     run_id: str
@@ -255,6 +263,9 @@ class PhaseListData(BaseModel):
     retry_count: int
     r"""Retry attempt number of the phase (0 for the first attempt)."""
 
+    sequence_path: Nullable[str]
+    r"""Path of the sequence call the phase ran in. Null for a phase written in the procedure itself."""
+
     is_final_attempt: bool
     r"""True when this is the final attempt of the phase."""
 
@@ -277,6 +288,7 @@ class PhaseListData(BaseModel):
             "started_at",
             "ended_at",
             "duration_ms",
+            "sequence_path",
             "serial_number",
             "sample",
         ]

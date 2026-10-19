@@ -1,16 +1,57 @@
 #!/bin/bash
 set -e
 
-# Guard: the generated runtime is decided by the CLI version, not by gen.lock —
-# an unpinned local CLI silently upgrades it (follow_redirects, new modules, …).
-# gen.lock's speakeasyVersion is the single source of truth; put that exact CLI
-# first on PATH before regenerating.
+# The generated runtime is decided by the CLI version, not by gen.lock: an
+# unpinned local CLI silently upgrades it (follow_redirects, new modules, …).
+# gen.lock's speakeasyVersion is the single source of truth, so the script
+# runs that exact CLI whatever `speakeasy` is on PATH (Homebrew's follows the
+# latest release). It is fetched once from the official release, checked
+# against the release's checksums, and kept under ~/.speakeasy/pinned/<version>.
+# Bumping the pin is its own change: it regenerates the whole runtime.
 EXPECTED_SPEAKEASY=$(awk '/^[[:space:]]*speakeasyVersion:/ {print $2; exit}' python-speakeasy/.speakeasy/gen.lock)
-ACTUAL_SPEAKEASY=$(speakeasy --version 2>/dev/null | awk '/^speakeasy version/ {print $3; exit}')
-if [ -z "$EXPECTED_SPEAKEASY" ] || [ "$ACTUAL_SPEAKEASY" != "$EXPECTED_SPEAKEASY" ]; then
-    echo "❌ speakeasy CLI is '${ACTUAL_SPEAKEASY:-not found}' but gen.lock pins '${EXPECTED_SPEAKEASY:-unknown}'."
-    echo "   Download it: https://github.com/speakeasy-api/speakeasy/releases/tag/v${EXPECTED_SPEAKEASY}"
-    echo "   then: export PATH=\"/path/to/speakeasy-${EXPECTED_SPEAKEASY}:\$PATH\""
+if [ -z "$EXPECTED_SPEAKEASY" ]; then
+    echo "❌ no speakeasyVersion in python-speakeasy/.speakeasy/gen.lock"
+    exit 1
+fi
+SPEAKEASY_DIR="${SPEAKEASY_PINNED_DIR:-$HOME/.speakeasy/pinned}/${EXPECTED_SPEAKEASY}"
+SPEAKEASY="$SPEAKEASY_DIR/speakeasy"
+if [ ! -x "$SPEAKEASY" ]; then
+    case "$(uname -s)_$(uname -m)" in
+        Darwin_arm64) ASSET=speakeasy_darwin_arm64.zip ;;
+        Darwin_x86_64) ASSET=speakeasy_darwin_amd64.zip ;;
+        Linux_x86_64) ASSET=speakeasy_linux_amd64.zip ;;
+        Linux_aarch64 | Linux_arm64) ASSET=speakeasy_linux_arm64.zip ;;
+        *)
+            echo "❌ no speakeasy release asset for $(uname -s) $(uname -m)"
+            exit 1
+            ;;
+    esac
+    RELEASE="https://github.com/speakeasy-api/speakeasy/releases/download/v${EXPECTED_SPEAKEASY}"
+    echo "📥 Fetching speakeasy ${EXPECTED_SPEAKEASY} (${ASSET}) into ${SPEAKEASY_DIR}..."
+    FETCH_DIR=$(mktemp -d)
+    curl -fsSL "$RELEASE/$ASSET" -o "$FETCH_DIR/$ASSET"
+    curl -fsSL "$RELEASE/checksums.txt" -o "$FETCH_DIR/checksums.txt"
+    EXPECTED_SUM=$(awk -v asset="$ASSET" '$2 == asset {print $1; exit}' "$FETCH_DIR/checksums.txt")
+    if command -v sha256sum >/dev/null 2>&1; then
+        ACTUAL_SUM=$(sha256sum "$FETCH_DIR/$ASSET" | awk '{print $1}')
+    else
+        ACTUAL_SUM=$(shasum -a 256 "$FETCH_DIR/$ASSET" | awk '{print $1}')
+    fi
+    if [ -z "$EXPECTED_SUM" ] || [ "$EXPECTED_SUM" != "$ACTUAL_SUM" ]; then
+        echo "❌ ${ASSET} checksum mismatch (expected '${EXPECTED_SUM:-none listed}', got '${ACTUAL_SUM}')"
+        rm -rf "$FETCH_DIR"
+        exit 1
+    fi
+    unzip -q "$FETCH_DIR/$ASSET" -d "$FETCH_DIR/unpacked"
+    mkdir -p "$SPEAKEASY_DIR"
+    mv "$FETCH_DIR/unpacked/speakeasy" "$SPEAKEASY"
+    chmod +x "$SPEAKEASY"
+    rm -rf "$FETCH_DIR"
+fi
+ACTUAL_SPEAKEASY=$("$SPEAKEASY" --version 2>/dev/null | awk '/^speakeasy version/ {print $3; exit}')
+if [ "$ACTUAL_SPEAKEASY" != "$EXPECTED_SPEAKEASY" ]; then
+    echo "❌ ${SPEAKEASY} reports '${ACTUAL_SPEAKEASY:-nothing}' but gen.lock pins '${EXPECTED_SPEAKEASY}'."
+    echo "   Delete ${SPEAKEASY_DIR} and rerun to fetch it again."
     exit 1
 fi
 echo "✅ speakeasy CLI ${ACTUAL_SPEAKEASY} matches gen.lock pin"
@@ -156,7 +197,7 @@ PYEOF
 # Step 4: Generate SDK using the fixed spec
 echo "🚀 Generating SDK with Speakeasy..."
 cd .tmp
-speakeasy generate sdk -s openapi-fixed.json -l python -o .
+"$SPEAKEASY" generate sdk -s openapi-fixed.json -l python -o .
 cd ..
 
 # Step 5: Move generated SDK to final location

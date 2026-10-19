@@ -1114,6 +1114,8 @@ class RunCreatePhaseTypedDict(TypedDict):
     r"""Array of measurements collected during this phase. Each measurement captures specific test data points with values, limits, and validation results. If no measurements are specified, the phase will be created without measurement data."""
     retry_count: NotRequired[int]
     r"""Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count."""
+    sequence_path: NotRequired[Nullable[str]]
+    r"""Path of the sequence call this phase ran in, matching the `path` of one entry of the run `sequences` array. Omit for a phase written in the procedure itself. Phase analytics identify a phase by its sequence path and its name together, so the same phase name inside two sequence calls counts as two phases."""
 
 
 class RunCreatePhase(BaseModel):
@@ -1138,10 +1140,84 @@ class RunCreatePhase(BaseModel):
     retry_count: Optional[int] = 0
     r"""Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count."""
 
+    sequence_path: OptionalNullable[str] = UNSET
+    r"""Path of the sequence call this phase ran in, matching the `path` of one entry of the run `sequences` array. Omit for a phase written in the procedure itself. Phase analytics identify a phase by its sequence path and its name together, so the same phase name inside two sequence calls counts as two phases."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["docstring", "measurements", "retry_count"]
-        nullable_fields = ["docstring", "measurements"]
+        optional_fields = ["docstring", "measurements", "retry_count", "sequence_path"]
+        nullable_fields = ["docstring", "measurements", "sequence_path"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
+RunCreateSequenceOutcome = Literal[
+    "PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED", "SKIP"
+]
+r"""Outcome of the sequence call, aggregated over its phases like a run outcome: ERROR, then ABORTED, then TIMEOUT, then FAIL, then PASS. SKIP when none of its phases ran."""
+
+
+class RunCreateSequenceTypedDict(TypedDict):
+    path: str
+    r"""Path of the sequence call: its instance key, prefixed by the keys of the calls it is nested in, joined by `/`. Unique within the run. A path with several segments requires its parent path (everything before the last `/`) to be present in the same array."""
+    name: str
+    r"""Display name of the sequence call, as declared on the call or in the sequence file."""
+    outcome: RunCreateSequenceOutcome
+    r"""Outcome of the sequence call, aggregated over its phases like a run outcome: ERROR, then ABORTED, then TIMEOUT, then FAIL, then PASS. SKIP when none of its phases ran."""
+    source: NotRequired[Nullable[str]]
+    r"""The sequence reference as written in the procedure (`uses:`), kept for display."""
+    started_at: NotRequired[Nullable[datetime]]
+    r"""ISO 8601 timestamp when the first phase of the call started. Omit for a skipped call."""
+    ended_at: NotRequired[Nullable[datetime]]
+    r"""ISO 8601 timestamp when the last phase of the call ended. Omit for a skipped call."""
+
+
+class RunCreateSequence(BaseModel):
+    path: str
+    r"""Path of the sequence call: its instance key, prefixed by the keys of the calls it is nested in, joined by `/`. Unique within the run. A path with several segments requires its parent path (everything before the last `/`) to be present in the same array."""
+
+    name: str
+    r"""Display name of the sequence call, as declared on the call or in the sequence file."""
+
+    outcome: RunCreateSequenceOutcome
+    r"""Outcome of the sequence call, aggregated over its phases like a run outcome: ERROR, then ABORTED, then TIMEOUT, then FAIL, then PASS. SKIP when none of its phases ran."""
+
+    source: OptionalNullable[str] = UNSET
+    r"""The sequence reference as written in the procedure (`uses:`), kept for display."""
+
+    started_at: OptionalNullable[datetime] = UNSET
+    r"""ISO 8601 timestamp when the first phase of the call started. Omit for a skipped call."""
+
+    ended_at: OptionalNullable[datetime] = UNSET
+    r"""ISO 8601 timestamp when the last phase of the call ended. Omit for a skipped call."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = ["source", "started_at", "ended_at"]
+        nullable_fields = ["source", "started_at", "ended_at"]
         null_default_fields = []
 
         serialized = handler(self)
@@ -1254,6 +1330,8 @@ class RunCreateRequestTypedDict(TypedDict):
     r"""Additional notes or documentation about this test run."""
     phases: NotRequired[List[RunCreatePhaseTypedDict]]
     r"""Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data."""
+    sequences: NotRequired[Nullable[List[RunCreateSequenceTypedDict]]]
+    r"""Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences."""
     logs: NotRequired[List[RunCreateLogTypedDict]]
     r"""Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries."""
     metadata: NotRequired[Dict[str, RunCreateMetadataTypedDict]]
@@ -1317,6 +1395,9 @@ class RunCreateRequest(BaseModel):
     phases: Optional[List[RunCreatePhase]] = None
     r"""Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data."""
 
+    sequences: OptionalNullable[List[RunCreateSequence]] = UNSET
+    r"""Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences."""
+
     logs: Optional[List[RunCreateLog]] = None
     r"""Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries."""
 
@@ -1342,6 +1423,7 @@ class RunCreateRequest(BaseModel):
             "sub_units",
             "docstring",
             "phases",
+            "sequences",
             "logs",
             "metadata",
             "unit_metadata",
@@ -1352,6 +1434,7 @@ class RunCreateRequest(BaseModel):
             "slot_key",
             "slot_name",
             "procedure_version",
+            "sequences",
         ]
         null_default_fields = []
 
