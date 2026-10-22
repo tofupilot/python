@@ -11,12 +11,9 @@ os.environ["DISABLE_TELEMETRY"] = "true"
 
 import pytest
 import re
-import requests
 from typing import Union
 
 import tofupilot
-
-from .e2e_tag import e2e_tag
 
 
 @pytest.fixture(scope="class")
@@ -72,9 +69,15 @@ def api_key(request, user_api_key: str, station_api_key: str) -> str:
         raise ValueError(f"Unknown api_key type: {request.param}")
 
 
+# Provisioned by apps/web/scripts/provision-e2e-ci-org.ts and linked to the CI
+# station there: stations may only post runs on procedures linked to them, and
+# V2 exposes no linking endpoint.
+STATION_LINKED_PROCEDURE_NAME = "E2E CI Station Procedure — do not delete"
+
+
 @pytest.fixture(scope="session")
 def _v1_test_procedure():
-    """Create a test procedure via V2 API for V1 tests. Session-scoped to avoid recreating."""
+    """The e2e org's station-linked procedure, shared by the V1 and station-auth tests."""
     url = os.environ.get("TOFUPILOT_URL")
     api_key = os.environ.get("TOFUPILOT_API_KEY_USER")
     if not url or not api_key:
@@ -83,33 +86,15 @@ def _v1_test_procedure():
         api_key=api_key,
         server_url=f"{url}/api",
     )
-    result = v2_client.procedures.create(name=f"V1 Test Procedure {e2e_tag()}")
-    proc = v2_client.procedures.get(id=result.id)
-    # Stations may only insert runs on procedures linked to them (station_procedures
-    # table). Link the CI station to the session procedure, resolving its id from the
-    # station key itself — no env var to forget. The link goes through the internal
-    # tRPC route because the V2 API deliberately exposes no linking endpoint.
+    result = v2_client.procedures.list(search_query=STATION_LINKED_PROCEDURE_NAME, limit=10)
+    proc = next((p for p in result.data if p.name == STATION_LINKED_PROCEDURE_NAME), None)
     # Fail loudly: a silent miss here used to surface as 161 downstream 403s.
-    station_key = os.environ.get("TOFUPILOT_API_KEY_STATION")
-    if station_key:
-        station_client = tofupilot.v2.TofuPilot(
-            api_key=station_key,
-            server_url=f"{url}/api",
+    if proc is None:
+        pytest.fail(
+            f'Procedure "{STATION_LINKED_PROCEDURE_NAME}" not found. Run '
+            "apps/web/scripts/provision-e2e-ci-org.ts against the database behind TOFUPILOT_URL."
         )
-        station_id = station_client.stations.get_current().id
-        resp = requests.post(
-            f"{url}/api/trpc/station.linkProcedure",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            json={"json": {"id": station_id, "procedure_id": proc.id}},
-            timeout=30,
-        )
-        # 409 = already linked, fine on re-runs against the same data
-        if resp.status_code not in (200, 409):
-            pytest.fail(
-                f"Could not link station {station_id} to procedure {proc.id}: "
-                f"HTTP {resp.status_code} — {resp.text[:300]}"
-            )
-    # The V2 procedure-get response has no `identifier` field; fall back to id.
+    # The V2 procedure response has no `identifier` field; fall back to id.
     return {"id": proc.id, "identifier": getattr(proc, "identifier", None) or proc.id}
 
 

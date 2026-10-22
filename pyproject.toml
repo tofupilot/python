@@ -1,6 +1,6 @@
 [project]
 name = "tofupilot"
-version = "2.24.0"
+version = "2.24.1"
 description = "Official Python client for TofuPilot with OpenHTF integration and file attachment support"
 authors = [
     { name = "TofuPilot Team", email = "hello@tofupilot.com" },
@@ -23,7 +23,9 @@ classifiers = [
 dependencies = [
     # Core v1 dependencies
     "requests>=2.25.0",
-    "certifi>=2023.7.22",
+    # 2026.10.19 removes "emSign ECC Root CA - G3", whose intermediates had their
+    # private keys leaked (eMudhra, October 2026). Older bundles still trust it.
+    "certifi>=2026.10.19",
     "posthog>=3.0.0",
     # Core v2 dependencies
     "httpcore>=1.0.9",
