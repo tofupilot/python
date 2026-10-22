@@ -9,8 +9,8 @@ from typing_extensions import TypedDict
 class UserListResponseTypedDict(TypedDict):
     id: str
     r"""Unique identifier for the user."""
-    email: str
-    r"""Email address of the user."""
+    email: Nullable[str]
+    r"""Email address of the user. Null for another member when the key belongs to a viewer restricted to access groups."""
     name: Nullable[str]
     r"""Display name of the user."""
     image: Nullable[str]
@@ -23,8 +23,8 @@ class UserListResponse(BaseModel):
     id: str
     r"""Unique identifier for the user."""
 
-    email: str
-    r"""Email address of the user."""
+    email: Nullable[str]
+    r"""Email address of the user. Null for another member when the key belongs to a viewer restricted to access groups."""
 
     name: Nullable[str]
     r"""Display name of the user."""
@@ -38,7 +38,7 @@ class UserListResponse(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["name", "image"]
+        nullable_fields = ["email", "name", "image"]
         null_default_fields = []
 
         serialized = handler(self)

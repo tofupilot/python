@@ -54,8 +54,8 @@ class ProcedureListCreatedByUserTypedDict(TypedDict):
     r"""Unique identifier for the user who created the procedure."""
     name: Nullable[str]
     r"""Name of the user who created the procedure."""
-    email: str
-    r"""Email of the user who created the procedure."""
+    email: Nullable[str]
+    r"""Email of the user who created the procedure. Null when the caller is a viewer restricted to access groups."""
 
 
 class ProcedureListCreatedByUser(BaseModel):
@@ -67,13 +67,13 @@ class ProcedureListCreatedByUser(BaseModel):
     name: Nullable[str]
     r"""Name of the user who created the procedure."""
 
-    email: str
-    r"""Email of the user who created the procedure."""
+    email: Nullable[str]
+    r"""Email of the user who created the procedure. Null when the caller is a viewer restricted to access groups."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["name"]
+        nullable_fields = ["name", "email"]
         null_default_fields = []
 
         serialized = handler(self)
