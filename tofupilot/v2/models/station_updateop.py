@@ -28,7 +28,7 @@ class StationUpdateRequestBodyTypedDict(TypedDict):
     image_id: NotRequired[str]
     r"""Upload ID for the station image, or empty string to remove image"""
     team_id: NotRequired[Nullable[str]]
-    r"""Team ID to assign this station to, or null to unassign"""
+    r"""Team ID to assign this station to, or null to unassign. Unassigning a station or moving it to another team requires the Admin or Owner role: the team decides who may deploy to the station."""
     metadata: NotRequired[Dict[str, Nullable[StationUpdateMetadataTypedDict]]]
     r"""Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
@@ -41,7 +41,7 @@ class StationUpdateRequestBody(BaseModel):
     r"""Upload ID for the station image, or empty string to remove image"""
 
     team_id: OptionalNullable[str] = UNSET
-    r"""Team ID to assign this station to, or null to unassign"""
+    r"""Team ID to assign this station to, or null to unassign. Unassigning a station or moving it to another team requires the Admin or Owner role: the team decides who may deploy to the station."""
 
     metadata: Optional[Dict[str, Nullable[StationUpdateMetadata]]] = None
     r"""Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""

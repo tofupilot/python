@@ -15,6 +15,7 @@ class Stations(BaseSDK):
         *,
         name: str,
         procedure_id: Optional[str] = None,
+        team_id: Optional[str] = None,
         metadata: Optional[
             Union[
                 Dict[str, models.StationCreateMetadata],
@@ -32,6 +33,7 @@ class Stations(BaseSDK):
 
         :param name: Name of the station
         :param procedure_id: Optional procedure ID to link the station to
+        :param team_id: Optional team to assign the station to. A user restricted to access groups must name one of their teams; with a single team it defaults to that team.
         :param metadata: Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -51,6 +53,7 @@ class Stations(BaseSDK):
         request = models.StationCreateRequest(
             name=name,
             procedure_id=procedure_id,
+            team_id=team_id,
             metadata=metadata,
         )
 
@@ -92,13 +95,18 @@ class Stations(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "403", "4XX", "500", "5XX"],
+            error_status_codes=["400", "401", "403", "404", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
             return unmarshal_json_response(models.StationCreateResponse, http_res)
+        if utils.match_response(http_res, "400", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorBADREQUESTData, http_res
+            )
+            raise errors.ErrorBADREQUEST(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
@@ -107,6 +115,9 @@ class Stations(BaseSDK):
         if utils.match_response(http_res, "403", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
             raise errors.ErrorFORBIDDEN(response_data, http_res)
+        if utils.match_response(http_res, "404", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
+            raise errors.ErrorNOTFOUND(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -126,6 +137,7 @@ class Stations(BaseSDK):
         *,
         name: str,
         procedure_id: Optional[str] = None,
+        team_id: Optional[str] = None,
         metadata: Optional[
             Union[
                 Dict[str, models.StationCreateMetadata],
@@ -143,6 +155,7 @@ class Stations(BaseSDK):
 
         :param name: Name of the station
         :param procedure_id: Optional procedure ID to link the station to
+        :param team_id: Optional team to assign the station to. A user restricted to access groups must name one of their teams; with a single team it defaults to that team.
         :param metadata: Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -162,6 +175,7 @@ class Stations(BaseSDK):
         request = models.StationCreateRequest(
             name=name,
             procedure_id=procedure_id,
+            team_id=team_id,
             metadata=metadata,
         )
 
@@ -203,13 +217,18 @@ class Stations(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "403", "4XX", "500", "5XX"],
+            error_status_codes=["400", "401", "403", "404", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
             return unmarshal_json_response(models.StationCreateResponse, http_res)
+        if utils.match_response(http_res, "400", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorBADREQUESTData, http_res
+            )
+            raise errors.ErrorBADREQUEST(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
@@ -218,6 +237,9 @@ class Stations(BaseSDK):
         if utils.match_response(http_res, "403", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
             raise errors.ErrorFORBIDDEN(response_data, http_res)
+        if utils.match_response(http_res, "404", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
+            raise errors.ErrorNOTFOUND(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -881,7 +903,7 @@ class Stations(BaseSDK):
         :param id: Unique identifier of the station to update
         :param name: New name for the station
         :param image_id: Upload ID for the station image, or empty string to remove image
-        :param team_id: Team ID to assign this station to, or null to unassign
+        :param team_id: Team ID to assign this station to, or null to unassign. Unassigning a station or moving it to another team requires the Admin or Owner role: the team decides who may deploy to the station.
         :param metadata: Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -950,7 +972,7 @@ class Stations(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "404", "4XX", "500", "5XX"],
+            error_status_codes=["401", "403", "404", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -962,6 +984,9 @@ class Stations(BaseSDK):
                 errors.ErrorUNAUTHORIZEDData, http_res
             )
             raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "403", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
+            raise errors.ErrorFORBIDDEN(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
             raise errors.ErrorNOTFOUND(response_data, http_res)
@@ -1004,7 +1029,7 @@ class Stations(BaseSDK):
         :param id: Unique identifier of the station to update
         :param name: New name for the station
         :param image_id: Upload ID for the station image, or empty string to remove image
-        :param team_id: Team ID to assign this station to, or null to unassign
+        :param team_id: Team ID to assign this station to, or null to unassign. Unassigning a station or moving it to another team requires the Admin or Owner role: the team decides who may deploy to the station.
         :param metadata: Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -1073,7 +1098,7 @@ class Stations(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "404", "4XX", "500", "5XX"],
+            error_status_codes=["401", "403", "404", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -1085,6 +1110,9 @@ class Stations(BaseSDK):
                 errors.ErrorUNAUTHORIZEDData, http_res
             )
             raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "403", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
+            raise errors.ErrorFORBIDDEN(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
             raise errors.ErrorNOTFOUND(response_data, http_res)

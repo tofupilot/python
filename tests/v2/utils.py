@@ -10,7 +10,7 @@ from trycast import checkcast
 # Import the new SDK
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2 import models
-from tofupilot.v2.errors import APIError
+from tofupilot.v2.errors import APIError, TofuPilotError
 
 
 @pytest.fixture(scope="class")
@@ -140,14 +140,16 @@ def assert_station_access_forbidden(operation_description: str = "operation"):
         with assert_station_access_forbidden("create procedure"):
             client.procedures.create(name="test")
     """
-    with pytest.raises(APIError) as exc_info:
+    # TofuPilotError, not APIError: once an endpoint declares its 403 in the spec,
+    # the SDK raises the typed ErrorFORBIDDEN, which is a sibling of APIError.
+    with pytest.raises(TofuPilotError) as exc_info:
         yield
-    
+
     api_error = exc_info.value
-    
+
     # Verify HTTP 403 FORBIDDEN status code
     assert hasattr(api_error, 'status_code'), (
-        f"APIError should have status_code attribute for {operation_description}. "
+        f"TofuPilotError should have status_code attribute for {operation_description}. "
         f"Error: {api_error}"
     )
     assert api_error.status_code == 403, (

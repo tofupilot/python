@@ -53,6 +53,12 @@ class Runs(BaseSDK):
                 Dict[str, models.UnitMetadata], Dict[str, models.UnitMetadataTypedDict]
             ]
         ] = None,
+        config: Optional[
+            Union[List[models.RunCreateConfig], List[models.RunCreateConfigTypedDict]]
+        ] = None,
+        secrets: Optional[
+            Union[List[models.RunCreateSecret], List[models.RunCreateSecretTypedDict]]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -84,6 +90,8 @@ class Runs(BaseSDK):
         :param logs: Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
         :param metadata: Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param unit_metadata: Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
+        :param config: Config values the run used (declared under `config:` in procedure.yaml), with their values. Recorded with the run; identical sets are stored once. Any client can send them, e.g. a calibration offset.
+        :param secrets: Secrets the run used, identified by the stored value and version they came from. Never send a secret value: a `value` field is rejected.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -126,6 +134,12 @@ class Runs(BaseSDK):
             logs=utils.get_pydantic_model(logs, Optional[List[models.RunCreateLog]]),
             metadata=metadata,
             unit_metadata=unit_metadata,
+            config=utils.get_pydantic_model(
+                config, Optional[List[models.RunCreateConfig]]
+            ),
+            secrets=utils.get_pydantic_model(
+                secrets, Optional[List[models.RunCreateSecret]]
+            ),
         )
 
         req = self._build_request(
@@ -263,6 +277,12 @@ class Runs(BaseSDK):
                 Dict[str, models.UnitMetadata], Dict[str, models.UnitMetadataTypedDict]
             ]
         ] = None,
+        config: Optional[
+            Union[List[models.RunCreateConfig], List[models.RunCreateConfigTypedDict]]
+        ] = None,
+        secrets: Optional[
+            Union[List[models.RunCreateSecret], List[models.RunCreateSecretTypedDict]]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -294,6 +314,8 @@ class Runs(BaseSDK):
         :param logs: Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
         :param metadata: Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param unit_metadata: Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
+        :param config: Config values the run used (declared under `config:` in procedure.yaml), with their values. Recorded with the run; identical sets are stored once. Any client can send them, e.g. a calibration offset.
+        :param secrets: Secrets the run used, identified by the stored value and version they came from. Never send a secret value: a `value` field is rejected.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -336,6 +358,12 @@ class Runs(BaseSDK):
             logs=utils.get_pydantic_model(logs, Optional[List[models.RunCreateLog]]),
             metadata=metadata,
             unit_metadata=unit_metadata,
+            config=utils.get_pydantic_model(
+                config, Optional[List[models.RunCreateConfig]]
+            ),
+            secrets=utils.get_pydantic_model(
+                secrets, Optional[List[models.RunCreateSecret]]
+            ),
         )
 
         req = self._build_request_async(

@@ -814,13 +814,13 @@ class RunCreateValidator(BaseModel):
 RunCreateAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Computed result of aggregation validation. Server stores as-is."""
 
-RunCreateValueTypedDict = TypeAliasType(
-    "RunCreateValueTypedDict", Union[float, str, bool]
+RunCreatePhaseValueTypedDict = TypeAliasType(
+    "RunCreatePhaseValueTypedDict", Union[float, str, bool]
 )
 r"""Computed aggregation value."""
 
 
-RunCreateValue = TypeAliasType("RunCreateValue", Union[float, str, bool])
+RunCreatePhaseValue = TypeAliasType("RunCreatePhaseValue", Union[float, str, bool])
 r"""Computed aggregation value."""
 
 
@@ -924,7 +924,7 @@ class RunCreateAggregationTypedDict(TypedDict):
     r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
     outcome: NotRequired[Nullable[RunCreateAggregationOutcome]]
     r"""Computed result of aggregation validation. Server stores as-is."""
-    value: NotRequired[Nullable[RunCreateValueTypedDict]]
+    value: NotRequired[Nullable[RunCreatePhaseValueTypedDict]]
     r"""Computed aggregation value."""
     unit: NotRequired[Nullable[str]]
     r"""Unit for the aggregated value."""
@@ -941,7 +941,7 @@ class RunCreateAggregation(BaseModel):
     outcome: OptionalNullable[RunCreateAggregationOutcome] = UNSET
     r"""Computed result of aggregation validation. Server stores as-is."""
 
-    value: OptionalNullable[RunCreateValue] = UNSET
+    value: OptionalNullable[RunCreatePhaseValue] = UNSET
     r"""Computed aggregation value."""
 
     unit: OptionalNullable[str] = UNSET
@@ -1293,6 +1293,143 @@ UnitMetadataTypedDict = TypeAliasType("UnitMetadataTypedDict", Union[str, float,
 UnitMetadata = TypeAliasType("UnitMetadata", Union[str, float, bool])
 
 
+RunCreateConfigValueTypedDict = TypeAliasType(
+    "RunCreateConfigValueTypedDict", Union[str, float, bool]
+)
+r"""Value the run used, in its declared type."""
+
+
+RunCreateConfigValue = TypeAliasType("RunCreateConfigValue", Union[str, float, bool])
+r"""Value the run used, in its declared type."""
+
+
+RunCreateConfigSource = Literal[
+    "default", "shell", "dotenv", "process", "station", "procedure", "organization"
+]
+r"""Where the value came from: the YAML `default:`, the shell environment, a `.env` file, the station process environment, or a value stored on the station, the procedure or the organization."""
+
+
+class RunCreateConfigTypedDict(TypedDict):
+    key: str
+    r"""Key as declared under `config:` or `secrets:` in procedure.yaml."""
+    value: RunCreateConfigValueTypedDict
+    r"""Value the run used, in its declared type."""
+    variable_id: NotRequired[Nullable[str]]
+    r"""ID of the stored value the station received, when it came from TofuPilot."""
+    version: NotRequired[Nullable[int]]
+    r"""Version of the stored value the station received."""
+    source: NotRequired[Nullable[RunCreateConfigSource]]
+    r"""Where the value came from: the YAML `default:`, the shell environment, a `.env` file, the station process environment, or a value stored on the station, the procedure or the organization."""
+
+
+class RunCreateConfig(BaseModel):
+    key: str
+    r"""Key as declared under `config:` or `secrets:` in procedure.yaml."""
+
+    value: RunCreateConfigValue
+    r"""Value the run used, in its declared type."""
+
+    variable_id: OptionalNullable[str] = UNSET
+    r"""ID of the stored value the station received, when it came from TofuPilot."""
+
+    version: OptionalNullable[int] = UNSET
+    r"""Version of the stored value the station received."""
+
+    source: OptionalNullable[RunCreateConfigSource] = UNSET
+    r"""Where the value came from: the YAML `default:`, the shell environment, a `.env` file, the station process environment, or a value stored on the station, the procedure or the organization."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = ["variable_id", "version", "source"]
+        nullable_fields = ["variable_id", "version", "source"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
+RunCreateSecretSource = Literal[
+    "default", "shell", "dotenv", "process", "station", "procedure", "organization"
+]
+r"""Where the value came from: the YAML `default:`, the shell environment, a `.env` file, the station process environment, or a value stored on the station, the procedure or the organization."""
+
+
+class RunCreateSecretTypedDict(TypedDict):
+    key: str
+    r"""Key as declared under `config:` or `secrets:` in procedure.yaml."""
+    variable_id: NotRequired[Nullable[str]]
+    r"""ID of the stored value the station received, when it came from TofuPilot."""
+    version: NotRequired[Nullable[int]]
+    r"""Version of the stored value the station received."""
+    source: NotRequired[Nullable[RunCreateSecretSource]]
+    r"""Where the value came from: the YAML `default:`, the shell environment, a `.env` file, the station process environment, or a value stored on the station, the procedure or the organization."""
+
+
+class RunCreateSecret(BaseModel):
+    key: str
+    r"""Key as declared under `config:` or `secrets:` in procedure.yaml."""
+
+    variable_id: OptionalNullable[str] = UNSET
+    r"""ID of the stored value the station received, when it came from TofuPilot."""
+
+    version: OptionalNullable[int] = UNSET
+    r"""Version of the stored value the station received."""
+
+    source: OptionalNullable[RunCreateSecretSource] = UNSET
+    r"""Where the value came from: the YAML `default:`, the shell environment, a `.env` file, the station process environment, or a value stored on the station, the procedure or the organization."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = ["variable_id", "version", "source"]
+        nullable_fields = ["variable_id", "version", "source"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
 class RunCreateRequestTypedDict(TypedDict):
     outcome: RunCreateOutcome
     r"""Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption."""
@@ -1338,6 +1475,10 @@ class RunCreateRequestTypedDict(TypedDict):
     r"""Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
     unit_metadata: NotRequired[Dict[str, UnitMetadataTypedDict]]
     r"""Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit."""
+    config: NotRequired[List[RunCreateConfigTypedDict]]
+    r"""Config values the run used (declared under `config:` in procedure.yaml), with their values. Recorded with the run; identical sets are stored once. Any client can send them, e.g. a calibration offset."""
+    secrets: NotRequired[List[RunCreateSecretTypedDict]]
+    r"""Secrets the run used, identified by the stored value and version they came from. Never send a secret value: a `value` field is rejected."""
 
 
 class RunCreateRequest(BaseModel):
@@ -1407,6 +1548,12 @@ class RunCreateRequest(BaseModel):
     unit_metadata: Optional[Dict[str, UnitMetadata]] = None
     r"""Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit."""
 
+    config: Optional[List[RunCreateConfig]] = None
+    r"""Config values the run used (declared under `config:` in procedure.yaml), with their values. Recorded with the run; identical sets are stored once. Any client can send them, e.g. a calibration offset."""
+
+    secrets: Optional[List[RunCreateSecret]] = None
+    r"""Secrets the run used, identified by the stored value and version they came from. Never send a secret value: a `value` field is rejected."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = [
@@ -1427,6 +1574,8 @@ class RunCreateRequest(BaseModel):
             "logs",
             "metadata",
             "unit_metadata",
+            "config",
+            "secrets",
         ]
         nullable_fields = [
             "deployment_id",

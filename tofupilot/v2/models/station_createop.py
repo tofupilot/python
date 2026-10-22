@@ -19,6 +19,8 @@ class StationCreateRequestTypedDict(TypedDict):
     r"""Name of the station"""
     procedure_id: NotRequired[str]
     r"""Optional procedure ID to link the station to"""
+    team_id: NotRequired[str]
+    r"""Optional team to assign the station to. A user restricted to access groups must name one of their teams; with a single team it defaults to that team."""
     metadata: NotRequired[Dict[str, StationCreateMetadataTypedDict]]
     r"""Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config."""
 
@@ -29,6 +31,9 @@ class StationCreateRequest(BaseModel):
 
     procedure_id: Optional[str] = None
     r"""Optional procedure ID to link the station to"""
+
+    team_id: Optional[str] = None
+    r"""Optional team to assign the station to. A user restricted to access groups must name one of their teams; with a single team it defaults to that team."""
 
     metadata: Optional[Dict[str, StationCreateMetadata]] = None
     r"""Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config."""

@@ -504,11 +504,13 @@ class RunGetValidator(BaseModel):
 RunGetAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
 
-RunGetValueTypedDict = TypeAliasType("RunGetValueTypedDict", Union[float, str, bool])
+RunGetPhaseValueTypedDict = TypeAliasType(
+    "RunGetPhaseValueTypedDict", Union[float, str, bool]
+)
 r"""Computed aggregation value. Type depends on aggregation type."""
 
 
-RunGetValue = TypeAliasType("RunGetValue", Union[float, str, bool])
+RunGetPhaseValue = TypeAliasType("RunGetPhaseValue", Union[float, str, bool])
 r"""Computed aggregation value. Type depends on aggregation type."""
 
 
@@ -621,7 +623,7 @@ class RunGetAggregationTypedDict(TypedDict):
     r"""Aggregation type (e.g., MIN, MAX, MEAN, RANGE, STD_DEV)."""
     outcome: Nullable[RunGetAggregationOutcome]
     r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
-    value: Nullable[RunGetValueTypedDict]
+    value: Nullable[RunGetPhaseValueTypedDict]
     r"""Computed aggregation value. Type depends on aggregation type."""
     unit: NotRequired[Nullable[str]]
     r"""Unit of measurement for the aggregated value."""
@@ -641,7 +643,7 @@ class RunGetAggregation(BaseModel):
     outcome: Nullable[RunGetAggregationOutcome]
     r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
 
-    value: Nullable[RunGetValue]
+    value: Nullable[RunGetPhaseValue]
     r"""Computed aggregation value. Type depends on aggregation type."""
 
     unit: OptionalNullable[str] = UNSET
@@ -1444,6 +1446,121 @@ RunGetMetadataTypedDict = TypeAliasType(
 RunGetMetadata = TypeAliasType("RunGetMetadata", Union[str, float, bool])
 
 
+RunGetConfigValueTypedDict = TypeAliasType(
+    "RunGetConfigValueTypedDict", Union[str, float, bool]
+)
+
+
+RunGetConfigValue = TypeAliasType("RunGetConfigValue", Union[str, float, bool])
+
+
+RunGetConfigSource = Literal[
+    "default", "shell", "dotenv", "process", "station", "procedure", "organization"
+]
+
+
+class RunGetConfigTypedDict(TypedDict):
+    key: str
+    value: RunGetConfigValueTypedDict
+    variable_id: Nullable[str]
+    version: Nullable[int]
+    source: Nullable[RunGetConfigSource]
+
+
+class RunGetConfig(BaseModel):
+    key: str
+
+    value: RunGetConfigValue
+
+    variable_id: Nullable[str]
+
+    version: Nullable[int]
+
+    source: Nullable[RunGetConfigSource]
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["variable_id", "version", "source"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
+RunGetSecretSource = Literal[
+    "default", "shell", "dotenv", "process", "station", "procedure", "organization"
+]
+
+
+class RunGetSecretTypedDict(TypedDict):
+    key: str
+    variable_id: Nullable[str]
+    version: Nullable[int]
+    source: Nullable[RunGetSecretSource]
+
+
+class RunGetSecret(BaseModel):
+    key: str
+
+    variable_id: Nullable[str]
+
+    version: Nullable[int]
+
+    source: Nullable[RunGetSecretSource]
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["variable_id", "version", "source"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
 class RunGetResponseTypedDict(TypedDict):
     r"""Single test run details."""
 
@@ -1469,6 +1586,10 @@ class RunGetResponseTypedDict(TypedDict):
     r"""Test procedure associated with this run."""
     unit: RunGetUnitTypedDict
     r"""Unit under test information."""
+    config: List[RunGetConfigTypedDict]
+    r"""Config values the run used (declared under `config:` in procedure.yaml), with their values. Empty when the run recorded none."""
+    secrets: List[RunGetSecretTypedDict]
+    r"""Secrets the run used, by stored value and version. Never carries a value. Empty when the run recorded none."""
     docstring: NotRequired[Nullable[str]]
     r"""Additional notes or documentation about this test run."""
     created_by_user: NotRequired[Nullable[RunGetCreatedByUserTypedDict]]
@@ -1525,6 +1646,12 @@ class RunGetResponse(BaseModel):
 
     unit: RunGetUnit
     r"""Unit under test information."""
+
+    config: List[RunGetConfig]
+    r"""Config values the run used (declared under `config:` in procedure.yaml), with their values. Empty when the run recorded none."""
+
+    secrets: List[RunGetSecret]
+    r"""Secrets the run used, by stored value and version. Never carries a value. Empty when the run recorded none."""
 
     docstring: OptionalNullable[str] = UNSET
     r"""Additional notes or documentation about this test run."""
