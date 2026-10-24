@@ -20,7 +20,7 @@ RunListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"
 
 RunListEnvironment = Literal["production", "preview", "development"]
 
-RunListQueryParamSample = Literal["golden", "failing", "ignored"]
+RunListQueryParamSample = Literal["production", "golden", "failing", "ignored"]
 
 RunListSortBy = Literal[
     "started_at",

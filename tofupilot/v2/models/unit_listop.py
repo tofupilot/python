@@ -18,7 +18,7 @@ from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 UnitListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
-UnitListQueryParamSample = Literal["golden", "failing", "ignored"]
+UnitListQueryParamSample = Literal["production", "golden", "failing", "ignored"]
 
 UnitListSortBy = Literal[
     "serial_number", "created_at", "last_run_at", "part_number", "last_run_procedure"
