@@ -6,8 +6,9 @@ import posthog
 from .telemetry_config import is_telemetry_enabled
 
 if is_telemetry_enabled():
-    posthog.api_key = "phc_egOxs66B4Dfq65Z53Et7wWc3demju3Lrz2pIrnBpwg9"
-    posthog.host = "https://us.i.posthog.com"
+    posthog.api_key = "phc_teUdXacHioniALiYDBE3MwJrMJscNx5NTHt6obkLGRHV"
+    # The dashboard's /ingest proxy: a PostHog region move needs no SDK release.
+    posthog.host = "https://www.tofupilot.app/ingest"
     posthog.debug = False
 else:
     posthog.api_key = "I need to be a truthy value, even if posthog is disabled"
