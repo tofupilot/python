@@ -6,6 +6,10 @@ the test finishes.
 
 `TofuPilot` is a deprecated context manager kept for existing bench scripts;
 it wraps that same callback and warns on use.
+
+For a new test procedure, use the TofuPilot Framework rather than OpenHTF:
+install the TofuPilot CLI (https://www.tofupilot.com/docs/cli) and run
+`tofupilot init`.
 """
 
 from ..error_tracking import ApiV1Error

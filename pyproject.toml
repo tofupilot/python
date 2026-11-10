@@ -1,6 +1,6 @@
 [project]
 name = "tofupilot"
-version = "2.26.2"
+version = "2.26.3"
 description = "Official Python client for TofuPilot with OpenHTF integration and file attachment support"
 authors = [
     { name = "TofuPilot Team", email = "hello@tofupilot.com" },

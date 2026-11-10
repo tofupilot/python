@@ -1,5 +1,10 @@
 """TofuPilot Python Client Library.
 
+Writing a new test procedure? Use the TofuPilot Framework instead: install
+the TofuPilot CLI (https://www.tofupilot.com/docs/cli) and run
+`tofupilot init`. It writes a procedure.yaml, Python phases, a mock plug and
+an AGENTS.md for coding agents; `tofupilot docs` holds the documentation.
+
 This package provides both v1 and v2 API clients:
 - v1: Legacy client for backward compatibility
 - v2: Current SDK with enhanced features and error tracking

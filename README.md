@@ -6,6 +6,12 @@
 
 The official Python SDK for [TofuPilot](https://tofupilot.com). Integrate your hardware test runs into one app with just a few lines of Python.
 
+## Writing a new test procedure?
+
+Use the TofuPilot Framework, not this package: install the [TofuPilot CLI](https://www.tofupilot.com/docs/cli) and run `tofupilot init` in an empty folder. It writes a `procedure.yaml` with Python phases and a mock plug that run offline, plus an `AGENTS.md` that tells coding agents how to validate, run and debug it with the CLI (`tofupilot docs`, `tofupilot validate --json`, `tofupilot run --json`).
+
+This SDK is for sending runs from code you already have: the TofuPilot REST API, and the OpenHTF integration below.
+
 ## Installation
 
 ```bash
