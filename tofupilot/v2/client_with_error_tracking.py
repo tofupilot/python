@@ -14,6 +14,16 @@ from .errors.tofupiloterror import TofuPilotError
 from ._hooks.types import BeforeRequestContext, BeforeRequestHook
 from ._version import __version__
 
+import importlib.metadata as _metadata
+
+# `_version.__version__` asks importlib for the `tofupilot.v2` distribution,
+# which does not exist: it falls back to the generator's own version. The
+# version users install and report is the `tofupilot` package's.
+try:
+    _CLIENT_VERSION = _metadata.version("tofupilot")
+except _metadata.PackageNotFoundError:
+    _CLIENT_VERSION = __version__
+
 
 def _enhance_error_message(e: TofuPilotError) -> None:
     """Enhance a TofuPilotError with validation issue details before re-raising."""
@@ -216,7 +226,7 @@ class _ClientInfoHook(BeforeRequestHook):
         self, hook_ctx: BeforeRequestContext, request: _httpx.Request
     ):
         request.headers["x-client-type"] = "python"
-        request.headers["x-client-version"] = __version__
+        request.headers["x-client-version"] = _CLIENT_VERSION
         return request
 
 
