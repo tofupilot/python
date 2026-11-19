@@ -134,11 +134,9 @@ r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."
 MeasurementGetValueTypedDict = TypeAliasType(
     "MeasurementGetValueTypedDict", Union[float, str, bool]
 )
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 MeasurementGetValue = TypeAliasType("MeasurementGetValue", Union[float, str, bool])
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 MeasurementGetAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
@@ -430,13 +428,11 @@ r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."
 MeasurementGetDataSeryValueTypedDict = TypeAliasType(
     "MeasurementGetDataSeryValueTypedDict", Union[float, str, bool]
 )
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 MeasurementGetDataSeryValue = TypeAliasType(
     "MeasurementGetDataSeryValue", Union[float, str, bool]
 )
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 MeasurementGetDataSeryAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]

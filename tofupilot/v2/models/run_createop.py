@@ -121,11 +121,9 @@ XAxisAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Computed result of aggregation validation. Server stores as-is."""
 
 XAxisValueTypedDict = TypeAliasType("XAxisValueTypedDict", Union[float, str, bool])
-r"""Computed aggregation value."""
 
 
 XAxisValue = TypeAliasType("XAxisValue", Union[float, str, bool])
-r"""Computed aggregation value."""
 
 
 XAxisAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
@@ -451,11 +449,9 @@ YAxiAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Computed result of aggregation validation. Server stores as-is."""
 
 YAxiValueTypedDict = TypeAliasType("YAxiValueTypedDict", Union[float, str, bool])
-r"""Computed aggregation value."""
 
 
 YAxiValue = TypeAliasType("YAxiValue", Union[float, str, bool])
-r"""Computed aggregation value."""
 
 
 YAxiAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
@@ -817,11 +813,9 @@ r"""Computed result of aggregation validation. Server stores as-is."""
 RunCreatePhaseValueTypedDict = TypeAliasType(
     "RunCreatePhaseValueTypedDict", Union[float, str, bool]
 )
-r"""Computed aggregation value."""
 
 
 RunCreatePhaseValue = TypeAliasType("RunCreatePhaseValue", Union[float, str, bool])
-r"""Computed aggregation value."""
 
 
 RunCreateAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
@@ -1114,6 +1108,8 @@ class RunCreatePhaseTypedDict(TypedDict):
     r"""Array of measurements collected during this phase. Each measurement captures specific test data points with values, limits, and validation results. If no measurements are specified, the phase will be created without measurement data."""
     retry_count: NotRequired[int]
     r"""Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count."""
+    plug_keys: NotRequired[Nullable[List[str]]]
+    r"""Keys of the run `plugs` this phase received. Ties each of its measurements to the instruments that took them. Omit when unknown."""
     sequence_path: NotRequired[Nullable[str]]
     r"""Path of the sequence call this phase ran in, matching the `path` of one entry of the run `sequences` array. Omit for a phase written in the procedure itself. Phase analytics identify a phase by its sequence path and its name together, so the same phase name inside two sequence calls counts as two phases."""
 
@@ -1140,13 +1136,22 @@ class RunCreatePhase(BaseModel):
     retry_count: Optional[int] = 0
     r"""Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count."""
 
+    plug_keys: OptionalNullable[List[str]] = UNSET
+    r"""Keys of the run `plugs` this phase received. Ties each of its measurements to the instruments that took them. Omit when unknown."""
+
     sequence_path: OptionalNullable[str] = UNSET
     r"""Path of the sequence call this phase ran in, matching the `path` of one entry of the run `sequences` array. Omit for a phase written in the procedure itself. Phase analytics identify a phase by its sequence path and its name together, so the same phase name inside two sequence calls counts as two phases."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["docstring", "measurements", "retry_count", "sequence_path"]
-        nullable_fields = ["docstring", "measurements", "sequence_path"]
+        optional_fields = [
+            "docstring",
+            "measurements",
+            "retry_count",
+            "plug_keys",
+            "sequence_path",
+        ]
+        nullable_fields = ["docstring", "measurements", "plug_keys", "sequence_path"]
         null_default_fields = []
 
         serialized = handler(self)
@@ -1245,6 +1250,99 @@ class RunCreateSequence(BaseModel):
         return m
 
 
+RunCreateScope = Literal["slot", "execution", "station"]
+r"""Lifetime of the plug instance: one per slot, one per execution, or held by the station across runs."""
+
+
+class RunCreatePlugTypedDict(TypedDict):
+    key: str
+    r"""Key of the plug in the procedure: the parameter name a phase receives it under. Unique within the run."""
+    name: str
+    r"""Display name of the plug, as declared in the procedure."""
+    python: NotRequired[Nullable[str]]
+    r"""Class reference of the plug as written in the procedure (`python:`)."""
+    scope: NotRequired[Nullable[RunCreateScope]]
+    r"""Lifetime of the plug instance: one per slot, one per execution, or held by the station across runs."""
+    manufacturer: NotRequired[Nullable[str]]
+    r"""Maker of the instrument the plug opened, the first field of its *IDN? answer. Omit when the plug reported none."""
+    model: NotRequired[Nullable[str]]
+    r"""Model of the instrument, the second field of *IDN?."""
+    serial_number: NotRequired[Nullable[str]]
+    r"""Serial number of the instrument, the third field of *IDN?."""
+    firmware: NotRequired[Nullable[str]]
+    r"""Firmware version of the instrument, the fourth field of *IDN?."""
+
+
+class RunCreatePlug(BaseModel):
+    key: str
+    r"""Key of the plug in the procedure: the parameter name a phase receives it under. Unique within the run."""
+
+    name: str
+    r"""Display name of the plug, as declared in the procedure."""
+
+    python: OptionalNullable[str] = UNSET
+    r"""Class reference of the plug as written in the procedure (`python:`)."""
+
+    scope: OptionalNullable[RunCreateScope] = UNSET
+    r"""Lifetime of the plug instance: one per slot, one per execution, or held by the station across runs."""
+
+    manufacturer: OptionalNullable[str] = UNSET
+    r"""Maker of the instrument the plug opened, the first field of its *IDN? answer. Omit when the plug reported none."""
+
+    model: OptionalNullable[str] = UNSET
+    r"""Model of the instrument, the second field of *IDN?."""
+
+    serial_number: OptionalNullable[str] = UNSET
+    r"""Serial number of the instrument, the third field of *IDN?."""
+
+    firmware: OptionalNullable[str] = UNSET
+    r"""Firmware version of the instrument, the fourth field of *IDN?."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = [
+            "python",
+            "scope",
+            "manufacturer",
+            "model",
+            "serial_number",
+            "firmware",
+        ]
+        nullable_fields = [
+            "python",
+            "scope",
+            "manufacturer",
+            "model",
+            "serial_number",
+            "firmware",
+        ]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
 RunCreateLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 r"""Severity level of the log message following standard system logging levels. Use DEBUG for detailed diagnostic information, INFO for general execution information, WARNING for unexpected events or potential issues, ERROR for serious problems that prevented function execution, CRITICAL for severe errors that may cause program termination."""
 
@@ -1260,6 +1358,8 @@ class RunCreateLogTypedDict(TypedDict):
     r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry. Paths longer than 200 characters keep the trailing 200 (leading characters are dropped); empty values become \"unknown\"."""
     line_number: int
     r"""Line number in the source file where the log message was generated. Used for debugging and tracing log origins."""
+    plug_key: NotRequired[Nullable[str]]
+    r"""Key of the plug that wrote this line, one of the run `plugs`. Omit for a line of a phase or of the procedure."""
 
 
 class RunCreateLog(BaseModel):
@@ -1277,6 +1377,39 @@ class RunCreateLog(BaseModel):
 
     line_number: int
     r"""Line number in the source file where the log message was generated. Used for debugging and tracing log origins."""
+
+    plug_key: OptionalNullable[str] = UNSET
+    r"""Key of the plug that wrote this line, one of the run `plugs`. Omit for a line of a phase or of the procedure."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = ["plug_key"]
+        nullable_fields = ["plug_key"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
 
 
 RunCreateMetadataTypedDict = TypeAliasType(
@@ -1443,6 +1576,8 @@ class RunCreateRequestTypedDict(TypedDict):
     r"""Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created."""
     deployment_id: NotRequired[Nullable[str]]
     r"""Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs."""
+    deployment_digest: NotRequired[str]
+    r"""SHA-256 digest of the deployed sources the station checked before this run. Set by the CLI with `deployment_id` when it ran a pulled deployment whose files it verified against their install. The server compares it with the digest of that deployment's build and records whether they match. Read only from a station key; ignored otherwise. Omit it for ad-hoc or local runs."""
     client_run_ref: NotRequired[str]
     r"""Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before."""
     execution_id: NotRequired[Nullable[str]]
@@ -1469,6 +1604,8 @@ class RunCreateRequestTypedDict(TypedDict):
     r"""Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data."""
     sequences: NotRequired[Nullable[List[RunCreateSequenceTypedDict]]]
     r"""Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences."""
+    plugs: NotRequired[Nullable[List[RunCreatePlugTypedDict]]]
+    r"""Plugs the run used: each instrument abstraction of the procedure, with the instrument it opened as the plug reported it (manufacturer, model, serial number, firmware). The TofuPilot CLI fills it from the plugs it opened. Omit for a run without plugs."""
     logs: NotRequired[List[RunCreateLogTypedDict]]
     r"""Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries."""
     metadata: NotRequired[Dict[str, RunCreateMetadataTypedDict]]
@@ -1499,6 +1636,9 @@ class RunCreateRequest(BaseModel):
 
     deployment_id: OptionalNullable[str] = UNSET
     r"""Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs."""
+
+    deployment_digest: Optional[str] = None
+    r"""SHA-256 digest of the deployed sources the station checked before this run. Set by the CLI with `deployment_id` when it ran a pulled deployment whose files it verified against their install. The server compares it with the digest of that deployment's build and records whether they match. Read only from a station key; ignored otherwise. Omit it for ad-hoc or local runs."""
 
     client_run_ref: Optional[str] = None
     r"""Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before."""
@@ -1539,6 +1679,9 @@ class RunCreateRequest(BaseModel):
     sequences: OptionalNullable[List[RunCreateSequence]] = UNSET
     r"""Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences."""
 
+    plugs: OptionalNullable[List[RunCreatePlug]] = UNSET
+    r"""Plugs the run used: each instrument abstraction of the procedure, with the instrument it opened as the plug reported it (manufacturer, model, serial number, firmware). The TofuPilot CLI fills it from the plugs it opened. Omit for a run without plugs."""
+
     logs: Optional[List[RunCreateLog]] = None
     r"""Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries."""
 
@@ -1558,6 +1701,7 @@ class RunCreateRequest(BaseModel):
     def serialize_model(self, handler):
         optional_fields = [
             "deployment_id",
+            "deployment_digest",
             "client_run_ref",
             "execution_id",
             "slot_key",
@@ -1571,6 +1715,7 @@ class RunCreateRequest(BaseModel):
             "docstring",
             "phases",
             "sequences",
+            "plugs",
             "logs",
             "metadata",
             "unit_metadata",
@@ -1584,6 +1729,7 @@ class RunCreateRequest(BaseModel):
             "slot_name",
             "procedure_version",
             "sequences",
+            "plugs",
         ]
         null_default_fields = []
 

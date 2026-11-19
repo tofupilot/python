@@ -41,6 +41,14 @@ class TestLegacyLifecycle:
         result = client.attachments.finalize(id=init.id)
         assert result.url
 
+        # The URL finalize returns must be one this client can download from.
+        # Self-hosted instances used to sign it for the storage container's
+        # Docker-internal name (http://tofupilot-seaweed:8333), which no
+        # client outside the server can resolve.
+        download = http_requests.get(result.url, timeout=30)
+        assert download.status_code == 200
+        assert download.content == b"lifecycle test content"
+
     def test_finalize_nonexistent_id(self, client: TofuPilot) -> None:
         with pytest.raises(ErrorNOTFOUND):
             client.attachments.finalize(id="00000000-0000-0000-0000-000000000000")

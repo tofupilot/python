@@ -507,11 +507,9 @@ r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."
 RunGetPhaseValueTypedDict = TypeAliasType(
     "RunGetPhaseValueTypedDict", Union[float, str, bool]
 )
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 RunGetPhaseValue = TypeAliasType("RunGetPhaseValue", Union[float, str, bool])
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 RunGetAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
@@ -803,11 +801,9 @@ r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."
 RunGetDataSeryValueTypedDict = TypeAliasType(
     "RunGetDataSeryValueTypedDict", Union[float, str, bool]
 )
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 RunGetDataSeryValue = TypeAliasType("RunGetDataSeryValue", Union[float, str, bool])
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 RunGetDataSeryAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
@@ -1292,6 +1288,92 @@ class RunGetSequence(BaseModel):
         return m
 
 
+RunGetScope = Literal["slot", "execution", "station"]
+r"""Lifetime of the plug instance: slot, execution or station."""
+
+
+class RunGetPlugTypedDict(TypedDict):
+    key: str
+    r"""Key of the plug in the procedure."""
+    name: str
+    r"""Display name of the plug."""
+    python: Nullable[str]
+    r"""Class reference of the plug as written in the procedure."""
+    scope: Nullable[RunGetScope]
+    r"""Lifetime of the plug instance: slot, execution or station."""
+    manufacturer: Nullable[str]
+    r"""Maker of the instrument."""
+    model: Nullable[str]
+    r"""Model of the instrument."""
+    serial_number: Nullable[str]
+    r"""Serial number of the instrument."""
+    firmware: Nullable[str]
+    r"""Firmware version of the instrument."""
+
+
+class RunGetPlug(BaseModel):
+    key: str
+    r"""Key of the plug in the procedure."""
+
+    name: str
+    r"""Display name of the plug."""
+
+    python: Nullable[str]
+    r"""Class reference of the plug as written in the procedure."""
+
+    scope: Nullable[RunGetScope]
+    r"""Lifetime of the plug instance: slot, execution or station."""
+
+    manufacturer: Nullable[str]
+    r"""Maker of the instrument."""
+
+    model: Nullable[str]
+    r"""Model of the instrument."""
+
+    serial_number: Nullable[str]
+    r"""Serial number of the instrument."""
+
+    firmware: Nullable[str]
+    r"""Firmware version of the instrument."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = [
+            "python",
+            "scope",
+            "manufacturer",
+            "model",
+            "serial_number",
+            "firmware",
+        ]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
 class RunGetAttachmentTypedDict(TypedDict):
     id: str
     r"""Attachment ID."""
@@ -1602,6 +1684,8 @@ class RunGetResponseTypedDict(TypedDict):
     r"""Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included."""
     sequences: NotRequired[List[RunGetSequenceTypedDict]]
     r"""Sequence calls of this run, parents before their nested calls. Each phase names its call through `sequence_path`. Returned together with `phases`, empty for a run without sequences."""
+    plugs: NotRequired[List[RunGetPlugTypedDict]]
+    r"""Plugs the run used, ordered by key: each instrument abstraction of the procedure with the instrument it opened, as the plug reported it. Empty for a run without plugs."""
     attachments: NotRequired[List[RunGetAttachmentTypedDict]]
     r"""Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included."""
     logs: NotRequired[List[RunGetLogTypedDict]]
@@ -1671,6 +1755,9 @@ class RunGetResponse(BaseModel):
     sequences: Optional[List[RunGetSequence]] = None
     r"""Sequence calls of this run, parents before their nested calls. Each phase names its call through `sequence_path`. Returned together with `phases`, empty for a run without sequences."""
 
+    plugs: Optional[List[RunGetPlug]] = None
+    r"""Plugs the run used, ordered by key: each instrument abstraction of the procedure with the instrument it opened, as the plug reported it. Empty for a run without plugs."""
+
     attachments: Optional[List[RunGetAttachment]] = None
     r"""Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included."""
 
@@ -1691,6 +1778,7 @@ class RunGetResponse(BaseModel):
             "operated_by",
             "phases",
             "sequences",
+            "plugs",
             "attachments",
             "logs",
             "sub_units",

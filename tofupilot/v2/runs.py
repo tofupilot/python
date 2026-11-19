@@ -20,6 +20,7 @@ class Runs(BaseSDK):
         ended_at: datetime,
         serial_number: str,
         deployment_id: OptionalNullable[str] = UNSET,
+        deployment_digest: Optional[str] = None,
         client_run_ref: Optional[str] = None,
         execution_id: OptionalNullable[str] = UNSET,
         slot_key: OptionalNullable[str] = UNSET,
@@ -38,6 +39,9 @@ class Runs(BaseSDK):
             Union[
                 List[models.RunCreateSequence], List[models.RunCreateSequenceTypedDict]
             ]
+        ] = UNSET,
+        plugs: OptionalNullable[
+            Union[List[models.RunCreatePlug], List[models.RunCreatePlugTypedDict]]
         ] = UNSET,
         logs: Optional[
             Union[List[models.RunCreateLog], List[models.RunCreateLogTypedDict]]
@@ -74,6 +78,7 @@ class Runs(BaseSDK):
         :param ended_at: ISO 8601 timestamp when the test run finished execution.
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
         :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
+        :param deployment_digest: SHA-256 digest of the deployed sources the station checked before this run. Set by the CLI with `deployment_id` when it ran a pulled deployment whose files it verified against their install. The server compares it with the digest of that deployment's build and records whether they match. Read only from a station key; ignored otherwise. Omit it for ad-hoc or local runs.
         :param client_run_ref: Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before.
         :param execution_id: Groups the runs produced by one multi-slot execution, one run per slot. Minted by the client once per start and shared by every slot run of that start. Omit for single-slot runs.
         :param slot_key: Key of the fixture slot that produced this run, from the procedure execution.slots config. Requires execution_id. One run per slot per execution.
@@ -87,6 +92,7 @@ class Runs(BaseSDK):
         :param docstring: Additional notes or documentation about this test run.
         :param phases: Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data.
         :param sequences: Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences.
+        :param plugs: Plugs the run used: each instrument abstraction of the procedure, with the instrument it opened as the plug reported it (manufacturer, model, serial number, firmware). The TofuPilot CLI fills it from the plugs it opened. Omit for a run without plugs.
         :param logs: Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
         :param metadata: Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param unit_metadata: Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
@@ -111,6 +117,7 @@ class Runs(BaseSDK):
             outcome=outcome,
             procedure_id=procedure_id,
             deployment_id=deployment_id,
+            deployment_digest=deployment_digest,
             client_run_ref=client_run_ref,
             execution_id=execution_id,
             slot_key=slot_key,
@@ -130,6 +137,9 @@ class Runs(BaseSDK):
             ),
             sequences=utils.get_pydantic_model(
                 sequences, OptionalNullable[List[models.RunCreateSequence]]
+            ),
+            plugs=utils.get_pydantic_model(
+                plugs, OptionalNullable[List[models.RunCreatePlug]]
             ),
             logs=utils.get_pydantic_model(logs, Optional[List[models.RunCreateLog]]),
             metadata=metadata,
@@ -244,6 +254,7 @@ class Runs(BaseSDK):
         ended_at: datetime,
         serial_number: str,
         deployment_id: OptionalNullable[str] = UNSET,
+        deployment_digest: Optional[str] = None,
         client_run_ref: Optional[str] = None,
         execution_id: OptionalNullable[str] = UNSET,
         slot_key: OptionalNullable[str] = UNSET,
@@ -262,6 +273,9 @@ class Runs(BaseSDK):
             Union[
                 List[models.RunCreateSequence], List[models.RunCreateSequenceTypedDict]
             ]
+        ] = UNSET,
+        plugs: OptionalNullable[
+            Union[List[models.RunCreatePlug], List[models.RunCreatePlugTypedDict]]
         ] = UNSET,
         logs: Optional[
             Union[List[models.RunCreateLog], List[models.RunCreateLogTypedDict]]
@@ -298,6 +312,7 @@ class Runs(BaseSDK):
         :param ended_at: ISO 8601 timestamp when the test run finished execution.
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
         :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
+        :param deployment_digest: SHA-256 digest of the deployed sources the station checked before this run. Set by the CLI with `deployment_id` when it ran a pulled deployment whose files it verified against their install. The server compares it with the digest of that deployment's build and records whether they match. Read only from a station key; ignored otherwise. Omit it for ad-hoc or local runs.
         :param client_run_ref: Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before.
         :param execution_id: Groups the runs produced by one multi-slot execution, one run per slot. Minted by the client once per start and shared by every slot run of that start. Omit for single-slot runs.
         :param slot_key: Key of the fixture slot that produced this run, from the procedure execution.slots config. Requires execution_id. One run per slot per execution.
@@ -311,6 +326,7 @@ class Runs(BaseSDK):
         :param docstring: Additional notes or documentation about this test run.
         :param phases: Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data.
         :param sequences: Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences.
+        :param plugs: Plugs the run used: each instrument abstraction of the procedure, with the instrument it opened as the plug reported it (manufacturer, model, serial number, firmware). The TofuPilot CLI fills it from the plugs it opened. Omit for a run without plugs.
         :param logs: Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
         :param metadata: Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param unit_metadata: Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
@@ -335,6 +351,7 @@ class Runs(BaseSDK):
             outcome=outcome,
             procedure_id=procedure_id,
             deployment_id=deployment_id,
+            deployment_digest=deployment_digest,
             client_run_ref=client_run_ref,
             execution_id=execution_id,
             slot_key=slot_key,
@@ -354,6 +371,9 @@ class Runs(BaseSDK):
             ),
             sequences=utils.get_pydantic_model(
                 sequences, OptionalNullable[List[models.RunCreateSequence]]
+            ),
+            plugs=utils.get_pydantic_model(
+                plugs, OptionalNullable[List[models.RunCreatePlug]]
             ),
             logs=utils.get_pydantic_model(logs, Optional[List[models.RunCreateLog]]),
             metadata=metadata,

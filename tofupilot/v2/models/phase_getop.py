@@ -136,11 +136,9 @@ r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."
 PhaseGetValueTypedDict = TypeAliasType(
     "PhaseGetValueTypedDict", Union[float, str, bool]
 )
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 PhaseGetValue = TypeAliasType("PhaseGetValue", Union[float, str, bool])
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 PhaseGetAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
@@ -430,11 +428,9 @@ r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."
 PhaseGetDataSeryValueTypedDict = TypeAliasType(
     "PhaseGetDataSeryValueTypedDict", Union[float, str, bool]
 )
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 PhaseGetDataSeryValue = TypeAliasType("PhaseGetDataSeryValue", Union[float, str, bool])
-r"""Computed aggregation value. Type depends on aggregation type."""
 
 
 PhaseGetDataSeryAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
