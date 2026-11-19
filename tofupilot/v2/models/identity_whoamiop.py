@@ -7,7 +7,7 @@ from typing import Literal
 from typing_extensions import TypedDict
 
 
-Type = Literal["station", "user"]
+IdentityWhoamiType = Literal["station", "user"]
 r"""What the API key identifies: a station or a user. The matching object below is set, the other is null."""
 
 
@@ -111,7 +111,7 @@ class Organization(BaseModel):
 class IdentityWhoamiResponseTypedDict(TypedDict):
     r"""Identity retrieved successfully"""
 
-    type: Type
+    type: IdentityWhoamiType
     r"""What the API key identifies: a station or a user. The matching object below is set, the other is null."""
     station: Nullable[IdentityWhoamiStationTypedDict]
     r"""The station the request is authenticated as; null for a user key."""
@@ -124,7 +124,7 @@ class IdentityWhoamiResponseTypedDict(TypedDict):
 class IdentityWhoamiResponse(BaseModel):
     r"""Identity retrieved successfully"""
 
-    type: Type
+    type: IdentityWhoamiType
     r"""What the API key identifies: a station or a user. The matching object below is set, the other is null."""
 
     station: Nullable[IdentityWhoamiStation]
