@@ -429,6 +429,10 @@ class UnitMetadatum(BaseModel):
     value: Optional[str] = None
 
 
+RunsPer = Literal["file", "row", "serial"]
+r"""How rows become runs. `file` (default): one run for the whole file, which must hold a single serial number. `row`: one run per row, for a log that appends a row per test (retests of a serial give several runs); needs the wide or none measurement layout. `serial`: one run per distinct serial number, its rows grouped together."""
+
+
 class MappingTypedDict(TypedDict):
     r"""Inline column mapping describing how source columns feed TofuPilot fields. Provide this OR template_id, not both."""
 
@@ -437,6 +441,12 @@ class MappingTypedDict(TypedDict):
     phases: NotRequired[ImportTabularPhasesTypedDict]
     metadata: NotRequired[List[MetadatumTypedDict]]
     unit_metadata: NotRequired[List[UnitMetadatumTypedDict]]
+    runs_per: NotRequired[RunsPer]
+    r"""How rows become runs. `file` (default): one run for the whole file, which must hold a single serial number. `row`: one run per row, for a log that appends a row per test (retests of a serial give several runs); needs the wide or none measurement layout. `serial`: one run per distinct serial number, its rows grouped together."""
+    sub_unit_columns: NotRequired[List[str]]
+    r"""Columns holding sub-unit serial numbers, linked to the run’s unit like `sub_units` on run creation. Empty cells are skipped. Each sub-unit must already exist: import its own runs first, or the row fails with `Sub-unit not found`."""
+    time_zone: NotRequired[str]
+    r"""IANA time zone for timestamps without an offset, such as `2026-07-08T15:49:48.349659`, `2026-07-08 15:49:48` or the date-only `2025-03-10` (read as midnight). Defaults to UTC. Timestamps with an offset or `Z`, and epoch numbers, are read as written."""
 
 
 class Mapping(BaseModel):
@@ -454,6 +464,17 @@ class Mapping(BaseModel):
         Optional[List[UnitMetadatum]], pydantic.Field(alias="unitMetadata")
     ] = None
 
+    runs_per: Annotated[Optional[RunsPer], pydantic.Field(alias="runsPer")] = None
+    r"""How rows become runs. `file` (default): one run for the whole file, which must hold a single serial number. `row`: one run per row, for a log that appends a row per test (retests of a serial give several runs); needs the wide or none measurement layout. `serial`: one run per distinct serial number, its rows grouped together."""
+
+    sub_unit_columns: Annotated[
+        Optional[List[str]], pydantic.Field(alias="subUnitColumns")
+    ] = None
+    r"""Columns holding sub-unit serial numbers, linked to the run’s unit like `sub_units` on run creation. Empty cells are skipped. Each sub-unit must already exist: import its own runs first, or the row fails with `Sub-unit not found`."""
+
+    time_zone: Annotated[Optional[str], pydantic.Field(alias="timeZone")] = None
+    r"""IANA time zone for timestamps without an offset, such as `2026-07-08T15:49:48.349659`, `2026-07-08 15:49:48` or the date-only `2025-03-10` (read as midnight). Defaults to UTC. Timestamps with an offset or `Z`, and epoch numbers, are read as written."""
+
 
 class ImportTabularRequestTypedDict(TypedDict):
     upload_id: str
@@ -464,6 +485,10 @@ class ImportTabularRequestTypedDict(TypedDict):
     r"""Inline column mapping describing how source columns feed TofuPilot fields. Provide this OR template_id, not both."""
     template_id: NotRequired[str]
     r"""ID of a saved mapping template to apply. Provide this OR mapping, not both."""
+    run_offset: NotRequired[int]
+    r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 1000 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0."""
+    allow_duplicate: NotRequired[bool]
+    r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): import the file even if the same content was already imported. By default a request with the same file content, `run_offset`, mapping and procedure as an earlier one whose runs still exist is not imported again: the response returns the existing runs with `already_imported: true`, so retrying a request is safe. A one-run-per-file mapping is never deduplicated."""
 
 
 class ImportTabularRequest(BaseModel):
@@ -479,21 +504,82 @@ class ImportTabularRequest(BaseModel):
     template_id: Optional[str] = None
     r"""ID of a saved mapping template to apply. Provide this OR mapping, not both."""
 
+    run_offset: Optional[int] = None
+    r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 1000 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0."""
+
+    allow_duplicate: Optional[bool] = False
+    r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): import the file even if the same content was already imported. By default a request with the same file content, `run_offset`, mapping and procedure as an earlier one whose runs still exist is not imported again: the response returns the existing runs with `already_imported: true`, so retrying a request is safe. A one-run-per-file mapping is never deduplicated."""
+
+
+class RowErrorTypedDict(TypedDict):
+    row: int
+    r"""1-based position of the data row in the file, the header row and blank rows not counted. For `runsPer: serial`, the first row of that serial."""
+    error: str
+    r"""Why this row created no run."""
+    serial_number: NotRequired[str]
+    r"""Serial number read from the row, when it has one."""
+
+
+class RowError(BaseModel):
+    row: int
+    r"""1-based position of the data row in the file, the header row and blank rows not counted. For `runsPer: serial`, the first row of that serial."""
+
+    error: str
+    r"""Why this row created no run."""
+
+    serial_number: Optional[str] = None
+    r"""Serial number read from the row, when it has one."""
+
 
 class ImportTabularResponseTypedDict(TypedDict):
     r"""Run imported successfully"""
 
     id: str
-    r"""ID of the created run."""
+    r"""ID of the created run. With a mapping that makes several runs, the first one, see `ids`."""
     file_import_id: str
-    r"""ID of the file import record that links this run to the uploaded file."""
+    r"""ID of the file import record that links the runs to the uploaded file."""
+    ids: NotRequired[List[str]]
+    r"""Present with a mapping that makes several runs (`runsPer` `row` or `serial`): every run id created by this request, in file order, rows that failed skipped. When `already_imported` is true, the existing runs in no guaranteed order."""
+    already_imported: NotRequired[bool]
+    r"""Present with a mapping that makes several runs. True when the same file content was already imported in your organization and some of its runs still exist: `id` and `ids` are those runs and nothing was created."""
+    row_errors: NotRequired[List[RowErrorTypedDict]]
+    r"""Present with a mapping that makes several runs: the rows of this request that created no run and why, at most 1000 (see `failed_row_count`). The other rows are imported."""
+    failed_row_count: NotRequired[int]
+    r"""Present with a mapping that makes several runs: how many runs of this request failed, including any not listed in `row_errors`."""
+    total_runs: NotRequired[int]
+    r"""Present with a mapping that makes several runs: how many runs the whole file makes (rows for `runsPer: row`, distinct serials for `runsPer: serial`), failed ones included."""
+    next_run_offset: NotRequired[int]
+    r"""Present when runs of the file remain after this request: send the same request with `run_offset` set to this value to import the next ones."""
+    warnings: NotRequired[List[str]]
+    r"""Non-fatal notes about the import, present when there are any."""
 
 
 class ImportTabularResponse(BaseModel):
     r"""Run imported successfully"""
 
     id: str
-    r"""ID of the created run."""
+    r"""ID of the created run. With a mapping that makes several runs, the first one, see `ids`."""
 
     file_import_id: str
-    r"""ID of the file import record that links this run to the uploaded file."""
+    r"""ID of the file import record that links the runs to the uploaded file."""
+
+    ids: Optional[List[str]] = None
+    r"""Present with a mapping that makes several runs (`runsPer` `row` or `serial`): every run id created by this request, in file order, rows that failed skipped. When `already_imported` is true, the existing runs in no guaranteed order."""
+
+    already_imported: Optional[bool] = None
+    r"""Present with a mapping that makes several runs. True when the same file content was already imported in your organization and some of its runs still exist: `id` and `ids` are those runs and nothing was created."""
+
+    row_errors: Optional[List[RowError]] = None
+    r"""Present with a mapping that makes several runs: the rows of this request that created no run and why, at most 1000 (see `failed_row_count`). The other rows are imported."""
+
+    failed_row_count: Optional[int] = None
+    r"""Present with a mapping that makes several runs: how many runs of this request failed, including any not listed in `row_errors`."""
+
+    total_runs: Optional[int] = None
+    r"""Present with a mapping that makes several runs: how many runs the whole file makes (rows for `runsPer: row`, distinct serials for `runsPer: serial`), failed ones included."""
+
+    next_run_offset: Optional[int] = None
+    r"""Present when runs of the file remain after this request: send the same request with `run_offset` set to this value to import the next ones."""
+
+    warnings: Optional[List[str]] = None
+    r"""Non-fatal notes about the import, present when there are any."""
