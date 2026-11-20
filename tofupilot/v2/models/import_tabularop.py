@@ -486,7 +486,7 @@ class ImportTabularRequestTypedDict(TypedDict):
     template_id: NotRequired[str]
     r"""ID of a saved mapping template to apply. Provide this OR mapping, not both."""
     run_offset: NotRequired[int]
-    r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 1000 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0."""
+    r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 100 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0."""
     allow_duplicate: NotRequired[bool]
     r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): import the file even if the same content was already imported. By default a request with the same file content, `run_offset`, mapping and procedure as an earlier one whose runs still exist is not imported again: the response returns the existing runs with `already_imported: true`, so retrying a request is safe. A one-run-per-file mapping is never deduplicated."""
 
@@ -505,7 +505,7 @@ class ImportTabularRequest(BaseModel):
     r"""ID of a saved mapping template to apply. Provide this OR mapping, not both."""
 
     run_offset: Optional[int] = None
-    r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 1000 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0."""
+    r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 100 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0."""
 
     allow_duplicate: Optional[bool] = False
     r"""With a mapping that makes several runs (`runsPer` `row` or `serial`): import the file even if the same content was already imported. By default a request with the same file content, `run_offset`, mapping and procedure as an earlier one whose runs still exist is not imported again: the response returns the existing runs with `already_imported: true`, so retrying a request is safe. A one-run-per-file mapping is never deduplicated."""
