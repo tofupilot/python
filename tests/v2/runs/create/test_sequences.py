@@ -141,6 +141,23 @@ def test_phases_list_carries_the_call_and_filters_by_it(client: TofuPilot, proce
     assert [(p.name, p.sequence_path) for p in in_dmm.data] == [("check", "calib/dmm")]
 
 
+def test_phases_list_selects_the_procedure_phases_with_a_dash(client: TofuPilot, procedure_id: str):
+    """`sequence_paths=["-"]` selects the phases written in the procedure
+    itself, and combines with a call to select both."""
+    run_id = _create_run_with_sequences(client, procedure_id, uid())
+
+    in_procedure = client.phases.list(procedure_id=procedure_id, ids=[run_id], sequence_paths=["-"])
+    assert [(p.name, p.sequence_path) for p in in_procedure.data] == [("warmup", None)]
+
+    both = client.phases.list(
+        procedure_id=procedure_id, ids=[run_id], sequence_paths=["-", "calib/dmm"]
+    )
+    assert sorted((p.name, p.sequence_path) for p in both.data) == [
+        ("check", "calib/dmm"),
+        ("warmup", None),
+    ]
+
+
 def test_a_nested_call_without_its_parent_is_refused(client: TofuPilot, procedure_id: str):
     """A path with several segments needs its parent in the same array."""
     started_at, ended_at = get_random_test_dates()
