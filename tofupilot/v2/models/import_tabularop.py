@@ -447,6 +447,8 @@ class MappingTypedDict(TypedDict):
     r"""Columns holding sub-unit serial numbers, linked to the run’s unit like `sub_units` on run creation. Empty cells are skipped. Each sub-unit must already exist: import its own runs first, or the row fails with `Sub-unit not found`."""
     time_zone: NotRequired[str]
     r"""IANA time zone for timestamps without an offset, such as `2026-07-08T15:49:48.349659`, `2026-07-08 15:49:48` or the date-only `2025-03-10` (read as midnight). Defaults to UTC. Timestamps with an offset or `Z`, and epoch numbers, are read as written."""
+    ignore_missing_columns: NotRequired[bool]
+    r"""Skip mapped columns the file does not have instead of failing the file, so one mapping covers files whose optional columns vary. The serial number, outcome and time columns, and the name and value columns of the long layout, stay required."""
 
 
 class Mapping(BaseModel):
@@ -474,6 +476,11 @@ class Mapping(BaseModel):
 
     time_zone: Annotated[Optional[str], pydantic.Field(alias="timeZone")] = None
     r"""IANA time zone for timestamps without an offset, such as `2026-07-08T15:49:48.349659`, `2026-07-08 15:49:48` or the date-only `2025-03-10` (read as midnight). Defaults to UTC. Timestamps with an offset or `Z`, and epoch numbers, are read as written."""
+
+    ignore_missing_columns: Annotated[
+        Optional[bool], pydantic.Field(alias="ignoreMissingColumns")
+    ] = None
+    r"""Skip mapped columns the file does not have instead of failing the file, so one mapping covers files whose optional columns vary. The serial number, outcome and time columns, and the name and value columns of the long layout, stay required."""
 
 
 class ImportTabularRequestTypedDict(TypedDict):
