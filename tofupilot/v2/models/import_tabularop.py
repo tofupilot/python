@@ -19,19 +19,24 @@ class SerialNumber2(BaseModel):
 
 class SerialNumber1TypedDict(TypedDict):
     column: str
+    extract: NotRequired[str]
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
 
 
 class SerialNumber1(BaseModel):
     column: str
 
+    extract: Optional[str] = None
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
+
 
 SerialNumberUnionTypedDict = TypeAliasType(
-    "SerialNumberUnionTypedDict", Union[SerialNumber1TypedDict, SerialNumber2TypedDict]
+    "SerialNumberUnionTypedDict", Union[SerialNumber2TypedDict, SerialNumber1TypedDict]
 )
 
 
 SerialNumberUnion = TypeAliasType(
-    "SerialNumberUnion", Union[SerialNumber1, SerialNumber2]
+    "SerialNumberUnion", Union[SerialNumber2, SerialNumber1]
 )
 
 
@@ -45,18 +50,23 @@ class PartNumber2(BaseModel):
 
 class PartNumber1TypedDict(TypedDict):
     column: str
+    extract: NotRequired[str]
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
 
 
 class PartNumber1(BaseModel):
     column: str
 
+    extract: Optional[str] = None
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
+
 
 PartNumberUnionTypedDict = TypeAliasType(
-    "PartNumberUnionTypedDict", Union[PartNumber1TypedDict, PartNumber2TypedDict]
+    "PartNumberUnionTypedDict", Union[PartNumber2TypedDict, PartNumber1TypedDict]
 )
 
 
-PartNumberUnion = TypeAliasType("PartNumberUnion", Union[PartNumber1, PartNumber2])
+PartNumberUnion = TypeAliasType("PartNumberUnion", Union[PartNumber2, PartNumber1])
 
 
 ImportTabularValue = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
@@ -105,18 +115,23 @@ class StartedAt2(BaseModel):
 
 class StartedAt1TypedDict(TypedDict):
     column: str
+    extract: NotRequired[str]
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
 
 
 class StartedAt1(BaseModel):
     column: str
 
+    extract: Optional[str] = None
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
+
 
 StartedAtUnionTypedDict = TypeAliasType(
-    "StartedAtUnionTypedDict", Union[StartedAt1TypedDict, StartedAt2TypedDict]
+    "StartedAtUnionTypedDict", Union[StartedAt2TypedDict, StartedAt1TypedDict]
 )
 
 
-StartedAtUnion = TypeAliasType("StartedAtUnion", Union[StartedAt1, StartedAt2])
+StartedAtUnion = TypeAliasType("StartedAtUnion", Union[StartedAt2, StartedAt1])
 
 
 class EndedAt2TypedDict(TypedDict):
@@ -129,18 +144,23 @@ class EndedAt2(BaseModel):
 
 class EndedAt1TypedDict(TypedDict):
     column: str
+    extract: NotRequired[str]
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
 
 
 class EndedAt1(BaseModel):
     column: str
 
+    extract: Optional[str] = None
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
+
 
 EndedAtUnionTypedDict = TypeAliasType(
-    "EndedAtUnionTypedDict", Union[EndedAt1TypedDict, EndedAt2TypedDict]
+    "EndedAtUnionTypedDict", Union[EndedAt2TypedDict, EndedAt1TypedDict]
 )
 
 
-EndedAtUnion = TypeAliasType("EndedAtUnion", Union[EndedAt1, EndedAt2])
+EndedAtUnion = TypeAliasType("EndedAtUnion", Union[EndedAt2, EndedAt1])
 
 
 class RevisionNumber2TypedDict(TypedDict):
@@ -153,20 +173,25 @@ class RevisionNumber2(BaseModel):
 
 class RevisionNumber1TypedDict(TypedDict):
     column: str
+    extract: NotRequired[str]
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
 
 
 class RevisionNumber1(BaseModel):
     column: str
 
+    extract: Optional[str] = None
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
+
 
 RevisionNumberUnionTypedDict = TypeAliasType(
     "RevisionNumberUnionTypedDict",
-    Union[RevisionNumber1TypedDict, RevisionNumber2TypedDict],
+    Union[RevisionNumber2TypedDict, RevisionNumber1TypedDict],
 )
 
 
 RevisionNumberUnion = TypeAliasType(
-    "RevisionNumberUnion", Union[RevisionNumber1, RevisionNumber2]
+    "RevisionNumberUnion", Union[RevisionNumber2, RevisionNumber1]
 )
 
 
@@ -180,18 +205,23 @@ class BatchNumber2(BaseModel):
 
 class BatchNumber1TypedDict(TypedDict):
     column: str
+    extract: NotRequired[str]
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
 
 
 class BatchNumber1(BaseModel):
     column: str
 
+    extract: Optional[str] = None
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
+
 
 BatchNumberUnionTypedDict = TypeAliasType(
-    "BatchNumberUnionTypedDict", Union[BatchNumber1TypedDict, BatchNumber2TypedDict]
+    "BatchNumberUnionTypedDict", Union[BatchNumber2TypedDict, BatchNumber1TypedDict]
 )
 
 
-BatchNumberUnion = TypeAliasType("BatchNumberUnion", Union[BatchNumber1, BatchNumber2])
+BatchNumberUnion = TypeAliasType("BatchNumberUnion", Union[BatchNumber2, BatchNumber1])
 
 
 class ImportTabularOperatedBy2TypedDict(TypedDict):
@@ -204,20 +234,25 @@ class ImportTabularOperatedBy2(BaseModel):
 
 class ImportTabularOperatedBy1TypedDict(TypedDict):
     column: str
+    extract: NotRequired[str]
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
 
 
 class ImportTabularOperatedBy1(BaseModel):
     column: str
 
+    extract: Optional[str] = None
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
+
 
 OperatedByTypedDict = TypeAliasType(
     "OperatedByTypedDict",
-    Union[ImportTabularOperatedBy1TypedDict, ImportTabularOperatedBy2TypedDict],
+    Union[ImportTabularOperatedBy2TypedDict, ImportTabularOperatedBy1TypedDict],
 )
 
 
 OperatedBy = TypeAliasType(
-    "OperatedBy", Union[ImportTabularOperatedBy1, ImportTabularOperatedBy2]
+    "OperatedBy", Union[ImportTabularOperatedBy2, ImportTabularOperatedBy1]
 )
 
 
@@ -231,18 +266,23 @@ class Docstring2(BaseModel):
 
 class Docstring1TypedDict(TypedDict):
     column: str
+    extract: NotRequired[str]
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
 
 
 class Docstring1(BaseModel):
     column: str
 
+    extract: Optional[str] = None
+    r"""Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`."""
+
 
 DocstringUnionTypedDict = TypeAliasType(
-    "DocstringUnionTypedDict", Union[Docstring1TypedDict, Docstring2TypedDict]
+    "DocstringUnionTypedDict", Union[Docstring2TypedDict, Docstring1TypedDict]
 )
 
 
-DocstringUnion = TypeAliasType("DocstringUnion", Union[Docstring1, Docstring2])
+DocstringUnion = TypeAliasType("DocstringUnion", Union[Docstring2, Docstring1])
 
 
 class FieldsTypedDict(TypedDict):
@@ -445,6 +485,8 @@ class MappingTypedDict(TypedDict):
     r"""How rows become runs. `file` (default): one run for the whole file, which must hold a single serial number. `row`: one run per row, for a log that appends a row per test (retests of a serial give several runs); needs the wide or none measurement layout. `serial`: one run per distinct serial number, its rows grouped together."""
     sub_unit_columns: NotRequired[List[str]]
     r"""Columns holding sub-unit serial numbers, linked to the run’s unit like `sub_units` on run creation. Empty cells are skipped. Each sub-unit must already exist: import its own runs first, or the row fails with `Sub-unit not found`."""
+    skip_missing_sub_units: NotRequired[bool]
+    r"""Create the run when a sub-unit serial matches no unit, without that link, instead of failing the row with `Sub-unit not found`. The left-out serials are reported in `warnings`."""
     run_key_columns: NotRequired[List[str]]
     r"""Columns that identify a run when the same file is imported again, for a log that grows by appending rows. A run whose key was already imported into the procedure is skipped, and reported as `changed` when its cells differ. Defaults to every cell of the row (`runsPer: row`) or the serial number (`runsPer: serial`). Applies to `row` and `serial` only."""
     time_zone: NotRequired[str]
@@ -475,6 +517,11 @@ class Mapping(BaseModel):
         Optional[List[str]], pydantic.Field(alias="subUnitColumns")
     ] = None
     r"""Columns holding sub-unit serial numbers, linked to the run’s unit like `sub_units` on run creation. Empty cells are skipped. Each sub-unit must already exist: import its own runs first, or the row fails with `Sub-unit not found`."""
+
+    skip_missing_sub_units: Annotated[
+        Optional[bool], pydantic.Field(alias="skipMissingSubUnits")
+    ] = None
+    r"""Create the run when a sub-unit serial matches no unit, without that link, instead of failing the row with `Sub-unit not found`. The left-out serials are reported in `warnings`."""
 
     run_key_columns: Annotated[
         Optional[List[str]], pydantic.Field(alias="runKeyColumns")
