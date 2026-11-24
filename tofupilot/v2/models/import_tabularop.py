@@ -3,7 +3,7 @@
 from __future__ import annotations
 import pydantic
 from pydantic.functional_validators import AfterValidator
-from tofupilot.v2.types import BaseModel
+from tofupilot.v2.types import BaseModel, Nullable
 from tofupilot.v2.utils import validate_const
 from typing import Dict, List, Literal, Optional, Union
 from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
@@ -335,6 +335,8 @@ class ColumnTypedDict(TypedDict):
     lower_limit: NotRequired[float]
     upper_limit: NotRequired[float]
     phase: NotRequired[str]
+    outcome_map: NotRequired[Dict[str, Nullable[str]]]
+    r"""Turns the column into a step result: each cell value maps to the measurement outcome (`PASS`, `FAIL`, `UNSET`), or to `null` to leave that cell out, such as `NOT_RUN`. A failed measurement fails its phase. A value with no entry fails the row."""
 
 
 class Column(BaseModel):
@@ -349,6 +351,11 @@ class Column(BaseModel):
     upper_limit: Annotated[Optional[float], pydantic.Field(alias="upperLimit")] = None
 
     phase: Optional[str] = None
+
+    outcome_map: Annotated[
+        Optional[Dict[str, Nullable[str]]], pydantic.Field(alias="outcomeMap")
+    ] = None
+    r"""Turns the column into a step result: each cell value maps to the measurement outcome (`PASS`, `FAIL`, `UNSET`), or to `null` to leave that cell out, such as `NOT_RUN`. A failed measurement fails its phase. A value with no entry fails the row."""
 
 
 class MeasurementsWideTypedDict(TypedDict):
